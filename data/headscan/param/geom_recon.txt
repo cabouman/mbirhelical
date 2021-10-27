@@ -1,0 +1,56 @@
+number of rows
+32
+
+number of channels
+920
+
+number of views
+2100
+
+views per rotation
+1050
+
+src to iso (mm)
+595
+
+src to det (mm)
+1085.6
+
+un-normalized pitch (det rows/rot)
+9.6463
+
+initial view angle (rad)
+4.9129
+
+view angle spacing (rad)
+0.0060
+
+detector channel angle spacing (rad)
+0.00094234
+
+detector channel offset (rad)
+0.0019
+
+detector row width (mm)
+1.0948
+
+diameter of field of view (mm)
+491.44
+
+initial photon counts (0 for noiseless)
+1
+
+electronic noise variance (0 for noiseless)
+1
+
+sinogram file location
+../data/headscan/sinogram/head_scan.sino
+
+dosage file location
+NA
+
+offset file location
+NA
+
+detector mask location
+NA

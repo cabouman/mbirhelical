@@ -1,3 +1,15 @@
+# macos hidden file
+*.DS_Store
+
+# Pycharm idea folder
+.idea/
+
+*.pyc
+__pycache__
+
+# docs
+docs/build/
+
 # Prerequisites
 *.d
 

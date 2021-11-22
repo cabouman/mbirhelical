@@ -1,0 +1,15 @@
+#!/bin/bash
+# FILENAME:  myjob.sub
+
+echo "myjob.sub"
+
+# Load module, and set up environment for Matlab to run
+module load matlab
+
+unset DISPLAY
+
+# -nodisplay:        run MATLAB in text mode; X11 server not needed
+# -singleCompThread: turn off implicit parallelism
+# -r:                read MATLAB program; use MATLAB JIT Accelerator
+# Run Matlab, with the above options and specifying our .m file
+matlab -nodisplay -singleCompThread -r myscript

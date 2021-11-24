@@ -13,11 +13,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: push src
-      run: push src
     - name: Current directory
+      working-directory: ./src/
       run: pwd
-    - name: pop src
-      run: pop src
-    - name: Current directory
-      run: pwd
+    - name: make all
+      working-directory: ./src/
+      run: make all

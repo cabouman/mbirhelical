@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: cd src
+      run: cd src
     - name: make all
       run: make all

@@ -13,7 +13,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: cd src
-      run: cd src
+    - name: push src
+      run: push src
+    - name: Current directory
+      run: pwd
+    - name: pop src
+      run: pop src
     - name: Current directory
       run: pwd

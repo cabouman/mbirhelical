@@ -4,7 +4,7 @@
 # @Last modified time: 2021-11-29T19:34:28-05:00
 
 import numpy as np
-
+from matplotlib import pyplot as plt
 ## Write 3D voxel to the file in below format
 # ASCII header will contain 3 lines
 #   Nx Ny Nz
@@ -40,3 +40,10 @@ def read(fname):
         img = np.load(fp)
 
     return img, res, loc
+
+# View 3D voxel
+def view3D(voxel):
+    fig = plt.figure(figsize =(8,8))
+    ax = plt.axes(projection='3d')
+    ax.voxels(voxel, edgecolors='grey')
+    plt.show()

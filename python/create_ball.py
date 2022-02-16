@@ -5,7 +5,7 @@
 
 import numpy as np
 from voxel import write, view3D
-
+import os 
 def create_cyliner(fname,N):
     radius = 25.0
     zshift = -0.5
@@ -35,6 +35,7 @@ def create_cyliner(fname,N):
     img=1000*img/(.02-.0000226)
     #view3D(img)
     write(img,fname,res,loc)
+    print("Phantom saved in ",os.path.abspath(fname))
     return img
 
 ## Creates Phantom ball with N*N*N size

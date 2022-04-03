@@ -87,6 +87,30 @@ int main(int argc, char *argv[])
 	fprintf(stdout,"fname_consensus is %s fname_X %s fname_V %s fname_TildeV %s\n",fname_consensus,fname_X,fname_V,fname_TildeV);
 
 
+	/* fill in intermediate variables */
+	
+	fillGeomInfo(&(sinogram.geom_info));
+	fillImgInfo(&(image.img_info));
+	fillImgInfo(&(V.img_info));
+	fillImgInfo(&(consensus_X.img_info));
+	fillImgInfo(&(TildeV.img_info));
+	fillImgInfo(&(VPrevious.img_info));
+	fillImgInfo(&(Vmean.img_info));
+
+
+	/* create and compute reconstruction mask */
+	
+	createReconMask(&recon_mask, &(image.img_info));
+	if (strcmp(image.img_info.maskFile, "NA") == 0)
+		compReconMask(recon_mask, &(image.img_info));
+	else
+	{
+		printf("Reading recon mask...\n");
+		readReconMask(recon_mask, &(image.img_info));
+	}
+	
+
+
 	if (strcmp(image.img_info.imgFile, "NA") == 0)
 	{
 		initImage(&(sinogram.geom_info), &(image), 0.0192);
@@ -95,6 +119,24 @@ int main(int argc, char *argv[])
                 initImage(&(sinogram.geom_info), &TildeV, 0.0192);
                 initImage(&(sinogram.geom_info), &VPrevious, 0.0192);
 	        initImage(&(sinogram.geom_info), &Vmean, 0.0192);
+
+
+		for (int i =0; i < image.img_info.Nx; i++){
+			for(int j=0;j<image.img_info.Ny;j++){
+				if(!recon_mask[i][j]){
+					for(int k=0;k<image.img_info.Nz;k++){
+						image.img[i*image.img_info.Ny *image.img_info.Nz + j*image.img_info.Nz+k]=0;
+						TildeV.img[i*image.img_info.Ny *image.img_info.Nz + j*image.img_info.Nz+k]=0;
+						V.img[i*image.img_info.Ny *image.img_info.Nz + j*image.img_info.Nz+k]=0;
+						consensus_X.img[i*image.img_info.Ny *image.img_info.Nz + j*image.img_info.Nz+k]=0;
+						VPrevious.img[i*image.img_info.Ny *image.img_info.Nz + j*image.img_info.Nz+k]=0;
+						Vmean.img[i*image.img_info.Ny *image.img_info.Nz + j*image.img_info.Nz+k]=0;
+
+
+					}
+				}	
+			}
+		}
 	
 	}
 	else
@@ -116,17 +158,6 @@ int main(int argc, char *argv[])
 	readCE(argv[5],&ce_info);
 
 
-	/* fill in intermediate variables */
-	
-	fillGeomInfo(&(sinogram.geom_info));
-	fillImgInfo(&(image.img_info));
-	fillImgInfo(&(V.img_info));
-	fillImgInfo(&(consensus_X.img_info));
-	fillImgInfo(&(TildeV.img_info));
-	fillImgInfo(&(VPrevious.img_info));
-	fillImgInfo(&(Vmean.img_info));
-
-
 	/*
 	int i=0;	
 	float penalizer =0.0;
@@ -139,17 +170,6 @@ int main(int argc, char *argv[])
 
 
 
-	/* create and compute reconstruction mask */
-	
-	createReconMask(&recon_mask, &(image.img_info));
-	if (strcmp(image.img_info.maskFile, "NA") == 0)
-		compReconMask(recon_mask, &(image.img_info));
-	else
-	{
-		printf("Reading recon mask...\n");
-		readReconMask(recon_mask, &(image.img_info));
-	}
-	
 
 
 	/* read number of iterations */

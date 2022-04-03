@@ -1,0 +1,4 @@
+../data/ACR_phantom_low_contrast_test1/head_scan_5mm/focal1/geom_recon.txt
+../data/ACR_phantom_low_contrast_test1/head_scan_5mm/focal2/geom_recon.txt
+../data/ACR_phantom_low_contrast_test1/head_scan_5mm/focal3/geom_recon.txt
+../data/ACR_phantom_low_contrast_test1/head_scan_5mm/focal4/geom_recon.txt

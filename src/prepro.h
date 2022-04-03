@@ -16,12 +16,8 @@ void initImage(struct GeomInfo *geom_info, struct Image *image, ENTRY value);
 
 void shuffle(int *array, int len);
 
-void filterUMM(ENTRY **UMM, ENTRY **VSC, ENTRY **filter, int h, int w);
+//void filterUMM(ENTRY **UMM, ENTRY **VSC, ENTRY **filter, int h, int w);
 
 /* Bouman's HU definition, 0 <-> air, 1000 <-> water */
-#define MIU_AIR 0.0000226
-#define MIU_WATER 0.02
-#define hu2miu(hu, miu_air, miu_water)	(hu*(miu_water-miu_air)/1000.0)
-#define miu2hu(miu, miu_air, miu_water)	(1000.0*miu/(miu_water-miu_air))
 
 #endif

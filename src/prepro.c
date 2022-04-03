@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #include "data.h"
 #include "allocate.h"
 #include "proj.h"
@@ -134,7 +135,7 @@ void initImage(
 
 	for (i = 0; i < len; i++)
 	{
-		image->img[i] = hu2miu(value, MIU_AIR, MIU_WATER);
+		image->img[i] = value;
 	}
 }
 
@@ -152,7 +153,7 @@ void shuffle(int *array, int len)
 		sum1 += i;
 	}
 
-	srand(0);
+	srand(time(NULL));
 	for (i = 0; i < len-1; i++)
 	{
 		j = i + rand()%(len-i);
@@ -167,19 +168,16 @@ void shuffle(int *array, int len)
 		sum2 += array[i];
 	}
 
-	if (sum1 == sum2)
+	if(sum1 != sum2)
 	{
-		fprintf(stdout, "shuffle works fine!\n");
-	}
-	else
-	{
-		fprintf(stdout, "shuffle has bugs!!\n");
+		fprintf(stderr, "shuffle has bugs!!\n");
+		exit(1);
 	}
 }
-
+/*
 void filterUMM(ENTRY **UMM, ENTRY **VSC, ENTRY **filter, int h, int w)
 {
-	/* use 5x5 Hamming window */
+// use 5x5 Hamming window 
 
 	int i, j, m, n, p, q;
 
@@ -203,6 +201,8 @@ void filterUMM(ENTRY **UMM, ENTRY **VSC, ENTRY **filter, int h, int w)
 		}
 	}
 }
+
+*/
 
 /* TODO */
 /*

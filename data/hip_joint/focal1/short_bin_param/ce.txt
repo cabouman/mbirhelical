@@ -1,0 +1,6 @@
+SigmaLambda
+0.05
+
+Rho Consensus (damping):
+0.8
+

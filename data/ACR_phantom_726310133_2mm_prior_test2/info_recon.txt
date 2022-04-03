@@ -1,0 +1,35 @@
+number of voxels in x
+1124
+
+number of voxels in y
+1124
+
+number of voxels in z (good slices)
+145
+
+number of voxels in z (total)
+145
+
+x coordinate of the center voxel (mm)
+0
+
+y coordinate of the center voxel (mm)
+0
+
+z coordinate of the center voxel (mm)
+58.5
+
+voxel spacing in xy (mm)
+0.4453125
+
+voxel spacing in z (mm)
+2
+
+radius of the reconstruction mask (mm)
+354
+
+initial reconstruction image location
+/global/cscratch1/sd/wang1698/ACR_phantoms/726310133/2mm_prior_test2/recon
+
+mask file location
+NA

@@ -1,0 +1,35 @@
+number of voxels in x
+512
+
+number of voxels in y
+512
+
+number of voxels in z (good slices)
+657
+
+number of voxels in z (total)
+657
+
+x coordinate of the center voxel (mm)
+0
+
+y coordinate of the center voxel (mm)
+0
+
+z coordinate of the center voxel (mm)
+157.7250
+
+voxel spacing in xy (mm)
+0.976
+
+voxel spacing in z (mm)
+0.5476
+
+radius of the reconstruction mask (mm)
+250
+
+initial reconstruction image location
+NA
+
+mask file location
+NA

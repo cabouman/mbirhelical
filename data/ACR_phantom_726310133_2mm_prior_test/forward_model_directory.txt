@@ -1,0 +1,4 @@
+../data/ACR_phantom_726310133_2mm_prior_test/detector1/focal1/geom_recon.txt
+../data/ACR_phantom_726310133_2mm_prior_test/detector1/focal2/geom_recon.txt
+../data/ACR_phantom_726310133_2mm_prior_test/detector2/focal1/geom_recon.txt
+../data/ACR_phantom_726310133_2mm_prior_test/detector2/focal2/geom_recon.txt

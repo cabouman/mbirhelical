@@ -1,0 +1,68 @@
+number of rows
+64
+
+number of channels
+736
+
+number of views
+9216
+
+views per rotation
+1152
+
+src to iso (mm)
+595
+
+src to det (mm)
+1085.6
+
+un-normalized pitch (det rows/rot)
+20.985366
+
+X-ray source initial z position (mm)
+50
+
+view angle spacing (rad)
+-0.00545406
+
+detector channel angle spacing (rad)
+0.001184414148858
+
+detector channel offset (rad)
+-0.001332465
+
+detector row width (mm)
+1.094722
+
+detector row offset (mm)
+0
+
+diameter of field of view (mm)
+500
+
+initial photon counts (0 for noiseless)
+2.25
+
+electronic noise variance (0 for noiseless)
+0.3
+
+sinogram file location
+/global/cscratch1/sd/wang1698/L067/sinogram/fulldose_focal1.sino
+
+weight file location
+/global/cscratch1/sd/wang1698/L067/sinogram/square_root_weight1.wght
+
+dosage file location
+NA
+
+offset file location
+NA
+
+detector mask location
+NA
+
+view angles list
+/global/cscratch1/sd/wang1698/L067/sinogram/viewAnglesList.txt
+
+source z position list
+/global/cscratch1/sd/wang1698/L067/sinogram/zPositionList.txt

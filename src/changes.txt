@@ -1,11 +1,4 @@
-Change parameter setting (field of view, voxel size)
-Fix bugs:
-(1) tid == (omp_get_num_threads()-1)
-
-(2) Free order, filter
-
-(3) No critical section for NH-ICD
-
-(4) parallel section divide and conquer wrong.
-
-
+improve convergence
+first two iterations rho=0.5
+first two iterations turn off zero skipping
+PNQP=1   turn off positivity constraint for the first two iterations

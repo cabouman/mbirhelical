@@ -1,0 +1,35 @@
+number of voxels in x
+854
+
+number of voxels in y
+854
+
+number of voxels in z (good slices)
+203
+
+number of voxels in z (total)
+203
+
+x coordinate of the center voxel (mm)
+0
+
+y coordinate of the center voxel (mm)
+0
+
+z coordinate of the center voxel (mm)
+183
+
+voxel spacing in xy (mm)
+0.5859
+
+voxel spacing in z (mm)
+2
+
+radius of the reconstruction mask (mm)
+354
+
+initial reconstruction image location
+/global/cscratch1/sd/wang1698/lung_cancer/MBIR_full_dose_2mm/recon
+
+mask file location
+NA

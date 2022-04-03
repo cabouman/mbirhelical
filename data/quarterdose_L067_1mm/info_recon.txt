@@ -1,0 +1,35 @@
+number of voxels in x
+752
+
+number of voxels in y
+752
+
+number of voxels in z (good slices)
+247
+
+number of voxels in z (total)
+247
+
+x coordinate of the center voxel (mm)
+11
+
+y coordinate of the center voxel (mm)
+0
+
+z coordinate of the center voxel (mm)
+147
+
+voxel spacing in xy (mm)
+0.6641
+
+voxel spacing in z (mm)
+0.8
+
+radius of the reconstruction mask (mm)
+250
+
+initial reconstruction image location
+/global/cscratch1/sd/wang1698/L067/quarterdose_1mm/recon
+
+mask file location
+NA

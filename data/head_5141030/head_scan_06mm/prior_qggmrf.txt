@@ -1,0 +1,11 @@
+Q-GGMRF Prior Parameter, q (recommended value is 2) :
+2
+
+Q-GGMRF Prior Parameter, p (permitted value between 1 to parameter q) :
+1.2
+
+Q-GGMRF Prior Parameter, T (soft threshold for edges):
+1
+
+Prior Regularization parameter, sigmaX, (mm^-1) (increasing sigmaX decreases regularization) :
+0.22

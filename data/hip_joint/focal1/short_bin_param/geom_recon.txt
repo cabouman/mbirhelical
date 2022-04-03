@@ -1,0 +1,62 @@
+number of rows
+96
+
+number of channels
+640
+
+number of views
+1953
+
+views per rotation
+560
+
+src to iso (mm)
+595
+
+src to det (mm)
+1085.6
+
+un-normalized pitch (det rows/rot)
+157.8482
+
+initial view angle (rad)
+1.0570
+
+X-ray source initial z position (mm)
+-0.056
+
+view angle spacing (rad)
+0.0112
+
+detector channel angle spacing (rad)
+0.00094234
+
+detector channel offset (rad)
+0.001413
+
+detector row width (mm)
+1.0947
+
+detector row offset (mm)
+1.0947
+
+diameter of field of view (mm)
+491.44
+
+initial photon counts (0 for noiseless)
+2.25
+
+electronic noise variance (0 for noiseless)
+0.3
+
+sinogram file location
+../data/hip_joint/sinogram/hip_joint2_focal1.sino
+
+dosage file location
+NA
+
+offset file location
+NA
+
+detector mask location
+NA

@@ -1,0 +1,4 @@
+../data/hip_joint/focal1/long_bin_param/geom_recon.txt
+../data/hip_joint/focal1/short_bin_param/geom_recon.txt
+../data/hip_joint/focal2/long_bin_param/geom_recon.txt
+../data/hip_joint/focal2/short_bin_param/geom_recon.txt

@@ -1,0 +1,35 @@
+number of voxels in x
+1128
+
+number of voxels in y
+1128
+
+number of voxels in z (good slices)
+1037
+
+number of voxels in z (total)
+1037
+
+x coordinate of the center voxel (mm)
+0
+
+y coordinate of the center voxel (mm)
+0
+
+z coordinate of the center voxel (mm)
+194.4
+
+voxel spacing in xy (mm)
+0.4434
+
+voxel spacing in z (mm)
+0.3
+
+radius of the reconstruction mask (mm)
+140
+
+initial reconstruction image location
+/global/cscratch1/sd/wang1698/dual_energy/Guyette_Phoebe_DECTA2/06mm/recon
+
+mask file location
+NA

@@ -13,7 +13,10 @@ export I_MPI_FABRICS=ofi
 export I_MPI_OFI_PROVIDER=gni
 export I_MPI_OFI_LIBRARY=/usr/common/software/libfabric/1.5.0/gnu/lib/libfabric.so
 
-export NUM_NODES=10
+export NUM_NODES=$SLURM_JOB_NUM_NODES
+
+echo "$NUM_NODES"
+
 export NUM_FOCAL_SPOTS=1
 export NUM_SOURCES=1
 

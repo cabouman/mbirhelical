@@ -14,7 +14,7 @@
 #define PnP_mode 0
 #define damping_constant 1.0
 #define ind_recon_it 0
-#define stabilization_iters 2
+#define stabilization_iters 0
 
 struct ICDInfo
 {

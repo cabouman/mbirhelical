@@ -426,7 +426,8 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 				fillNeighbors(icd_info.neighbors,jx,jy,jz,X,img_info); 
 
 				/*** sjk: zero skip check ***/
-				if(it>=stabilization_iters){
+				if(it>=stabilization_iters || (it<stabilization_iters && (strcmp(img_info->imgFile, "NA") != 0))){
+
 				if( X[offset+jz] > 0)
 				  zero_skip_flag=0;  /* don't skip */
 				else
@@ -545,7 +546,8 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 					fillNeighbors(icd_info.neighbors,jjx,jjy,jz,X,img_info); 
 
 				        /*** sjk: zero skip check ***/
-					if(it>=stabilization_iters){
+					if(it>=stabilization_iters ||(it<stabilization_iters && (strcmp(img_info->imgFile, "NA") != 0))){
+
 
 					if( X[offset+jz] > 0)
 					  zero_skip_flag=0;  /* don't skip */
@@ -1008,7 +1010,7 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 			for (jz = tid*img_info->Nz/omp_get_num_threads(); jz < jzmax; jz++)
 			{
 				fillNeighbors(icd_info.neighbors,jx,jy,jz,X,img_info); 
-				if((it>=stabilization_iters && PnP_mode==0) || PnP_mode==1){
+				if(((it>=stabilization_iters ||	(it<stabilization_iters && (strcmp(img_info->imgFile, "NA") != 0)))&& PnP_mode==0) || PnP_mode==1){
 
 				if( X[offset+jz] > 0)
 				  zero_skip_flag=0; 
@@ -1123,8 +1125,9 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 				offset= jjx*Nyz + jjy*img_info->Nz; 
 				for (jz = tid*img_info->Nz/omp_get_num_threads(); jz < jzmax; jz++)
 				{
-					fillNeighbors(icd_info.neighbors,jjx,jjy,jz,X,img_info); 
-					if((it>=stabilization_iters && PnP_mode==0) || PnP_mode==1){
+					fillNeighbors(icd_info.neighbors,jjx,jjy,jz,X,img_info);
+					if(((it>=stabilization_iters ||	(it<stabilization_iters && (strcmp(img_info->imgFile, "NA") != 0)))&& PnP_mode==0) || PnP_mode==1){
+
 					if( X[offset+jz] > 0)
 					  zero_skip_flag=0; 
 					else

@@ -29,7 +29,7 @@ radius of the reconstruction mask (mm)
 250
 
 initial reconstruction image location
-NA
+/global/cscratch1/sd/wang1698/AAPM_2022/recon/reference/recon
 
 mask file location
 NA

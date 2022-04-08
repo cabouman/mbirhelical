@@ -8,4 +8,4 @@ Q-GGMRF Prior Parameter, T (soft threshold for edges):
 1
 
 Prior Regularization parameter, sigmaX, (mm^-1) (increasing sigmaX decreases regularization) :
-0.5
+0.9

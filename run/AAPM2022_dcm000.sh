@@ -1,7 +1,7 @@
 #!/bin/sh -l
 # FILENAME: submit.sh
 
-#SBATCH -N 10
+#SBATCH -N 4
 #SBATCH -C haswell
 #SBATCH -q debug
 #SBATCH -t 00:30:00

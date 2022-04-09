@@ -1,8 +1,8 @@
 number of voxels in x
-552
+592
 
 number of voxels in y
-552
+592
 
 number of voxels in z (good slices)
 583

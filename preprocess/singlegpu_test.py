@@ -19,11 +19,14 @@ from io import StringIO
 device = torch.device('cuda:0')
 
 
+data_idx=0
+DIR="/gpfs/alpine/med106/world-shared/irl1/aapm_data/dcmproj_copd/dcm_%03d/" % (data_idx)
 
-proj_info = pydicom.dcmread("/gpfs/alpine/med106/world-shared/irl1/aapm_data/dcmproj_copd/dcm_000/proj_0001.dcm")
+print("DIR ",DIR)
+proj_name=DIR+"proj_0001.dcm"
+proj_info = pydicom.dcmread(proj_name)
 
 
-DIR = '/gpfs/alpine/med106/world-shared/irl1/aapm_data/dcmproj_copd/dcm_000/'
 print("length ",len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]))
 
 
@@ -42,10 +45,9 @@ print(type(NumViews)," ",type(NumRows)," ",type(NumChannels),type(NumViews))
 
 focal1_Proj=torch.zeros(NumChannels,NumRows,NumViews)
 for iv in range (0, NumViews):
-    dataname=StringIO("/gpfs/alpine/med106/world-shared/irl1/aapm_data/dcmproj_copd/dcm_000/proj_%04d.dcm" % (iv+1))
-    
-#    print(dataname.getvalue())
-    temp = pydicom.dcmread(dataname.getvalue()).pixel_array
+    proj="proj_%04d.dcm" % (iv+1)
+    projname=DIR+proj
+    temp = pydicom.dcmread(projname).pixel_array
     focal1_Proj[:,:,iv] = torch.from_numpy(temp *RescaleSlope +RescaleIntercept)
 
 print("focal1_Proj max ",torch.max(focal1_Proj)," min ",torch.min(focal1_Proj), " dtype ",focal1_Proj.dtype, " shape ",focal1_Proj.shape)
@@ -56,31 +58,27 @@ print("focal1_Proj after permute ",focal1_Proj.shape)
 weight = torch.exp(-0.3*focal1_Proj)
 
 
-dataname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm000_proj.sino")
+outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_proj.sino" % data_idx)
 
-with open(dataname.getvalue(),'w') as f:
+with open(outputname.getvalue(),'w') as f:
     f.write('%d ' % NumRows)
     f.write('%d ' % NumChannels)
     f.write('%d\n' % NumViews)
 
-#with open(dataname.getvalue(),'ab') as f:
-#    f.write(struct.pack("@f",focal1_Proj.cpu().numpy()))
 
-with open(dataname.getvalue(),'ab') as f:
+with open(outputname.getvalue(),'ab') as f:
     np.array(focal1_Proj.cpu().numpy(),dtype=np.float32).tofile(f)
 
 
-dataname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm000_weight.wght")
+outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_weight.wght" % data_idx)
 
-with open(dataname.getvalue(),'w') as f:
+with open(outputname.getvalue(),'w') as f:
     f.write('%d ' % NumRows)
     f.write('%d ' % NumChannels)
     f.write('%d\n' % NumViews)
 
-#with open(dataname.getvalue(),'ab') as f:
-#    f.write(struct.pack("@f",focal1_Proj.cpu().numpy()))
 
-with open(dataname.getvalue(),'ab') as f:
+with open(outputname.getvalue(),'ab') as f:
     np.array(weight.cpu().numpy(),dtype=np.float32).tofile(f)
 
 

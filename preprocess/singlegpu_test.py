@@ -23,16 +23,22 @@ device = torch.device('cuda:0')
 proj_info = pydicom.dcmread("/gpfs/alpine/med106/world-shared/irl1/aapm_data/dcmproj_copd/dcm_000/proj_0001.dcm")
 
 
+DIR = '/gpfs/alpine/med106/world-shared/irl1/aapm_data/dcmproj_copd/dcm_000/'
+print("length ",len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]))
 
-NumViews=9000;   
-NumRows=proj_info.Columns;
-NumChannels=proj_info.Rows;
-RescaleSlope = proj_info.RescaleSlope;
-RescaleIntercept = proj_info.RescaleIntercept;
 
-#print("NumRows ",NumRows, " NumChannels ",NumChannels," RescaleSlope ",RescaleSlope," RescaleIntercept ",RescaleIntercept)
+NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])-1   
+NumRows=proj_info.Columns
+NumChannels=proj_info.Rows
+RescaleSlope = proj_info.RescaleSlope
+RescaleIntercept = proj_info.RescaleIntercept
 
-print(type(NumViews)," ",type(NumRows)," ",type(NumChannels))
+print("NumRows ",NumRows, " NumChannels ",NumChannels," NumViews ",NumViews," RescaleSlope ",RescaleSlope," RescaleIntercept ",RescaleIntercept)
+print(type(NumViews)," ",type(NumRows)," ",type(NumChannels),type(NumViews))
+
+
+
+
 
 focal1_Proj=torch.zeros(NumChannels,NumRows,NumViews)
 for iv in range (0, NumViews):

@@ -42,15 +42,16 @@ for iv in range (0, NumViews):
     temp = pydicom.dcmread(dataname.getvalue()).pixel_array
     focal1_Proj[:,:,iv] = torch.from_numpy(temp *RescaleSlope +RescaleIntercept)
 
-print("focal1_Proj max ",torch.max(focal1_Proj)," min ",torch.min(focal1_Proj), " dtype ",focal1_Proj.dtype)
-torch.permute(focal1_Proj, (1, 0, 2))
+print("focal1_Proj max ",torch.max(focal1_Proj)," min ",torch.min(focal1_Proj), " dtype ",focal1_Proj.dtype, " shape ",focal1_Proj.shape)
+focal1_Proj=torch.permute(focal1_Proj, (2, 0, 1))
+
+print("focal1_Proj after permute ",focal1_Proj.shape)
 
 weight = torch.exp(-0.3*focal1_Proj)
 
 
 dataname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm000_proj.sino")
 
-import struct
 with open(dataname.getvalue(),'w') as f:
     f.write('%d ' % NumRows)
     f.write('%d ' % NumChannels)
@@ -61,5 +62,20 @@ with open(dataname.getvalue(),'w') as f:
 
 with open(dataname.getvalue(),'ab') as f:
     np.array(focal1_Proj.cpu().numpy(),dtype=np.float32).tofile(f)
+
+
+dataname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm000_weight.wght")
+
+with open(dataname.getvalue(),'w') as f:
+    f.write('%d ' % NumRows)
+    f.write('%d ' % NumChannels)
+    f.write('%d\n' % NumViews)
+
+#with open(dataname.getvalue(),'ab') as f:
+#    f.write(struct.pack("@f",focal1_Proj.cpu().numpy()))
+
+with open(dataname.getvalue(),'ab') as f:
+    np.array(weight.cpu().numpy(),dtype=np.float32).tofile(f)
+
 
 

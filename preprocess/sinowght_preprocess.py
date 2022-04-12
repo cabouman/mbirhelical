@@ -96,3 +96,31 @@ for data_idx in range(my_range_start,my_range_end):
     print("focal1_Proj after permute ",focal1_Proj.shape)
 
 
+    weight = torch.exp(-0.3*focal1_Proj)
+
+
+    outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_proj.sino" % data_idx)
+
+    with open(outputname.getvalue(),'w') as f:
+        f.write('%d ' % NumRows)
+        f.write('%d ' % NumChannels)
+        f.write('%d\n' % NumViews)
+
+
+    with open(outputname.getvalue(),'ab') as f:
+        np.array(focal1_Proj.cpu().numpy(),dtype=np.float32).tofile(f)
+
+
+    outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_weight.wght" % data_idx)
+
+    with open(outputname.getvalue(),'w') as f:
+        f.write('%d ' % NumRows)
+        f.write('%d ' % NumChannels)
+        f.write('%d\n' % NumViews)
+
+
+    with open(outputname.getvalue(),'ab') as f:
+        np.array(weight.cpu().numpy(),dtype=np.float32).tofile(f)
+
+
+

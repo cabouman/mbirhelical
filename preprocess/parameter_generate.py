@@ -49,6 +49,12 @@ for data_idx in range(0,200):
     print(type(NumViews)," ",type(NumRows)," ",type(NumChannels),type(NumViews))
 
 
+    if data_idx <134:
+        z_spacing = 0.5476
+    else:
+        z_spacing = 1.5
+
+
     #create the main parent folder and the detector1 folder
     parent_folder="/gpfs/alpine/med106/world-shared/xf9/aapm-parameters/dcm_%03d/detector1" % (data_idx)
 
@@ -147,20 +153,27 @@ for data_idx in range(0,200):
         f.write('number of voxels in y\n')
         f.write('%d\n\n' % 512)
         f.write('number of voxels in z (good slices)\n')
-        useful_z_slices = ceil((recon_z_end - recon_z_start)/0.5476)+1
-        f.write('%d\n\n' % (useful_z_slices+NumRows*2))
+        useful_z_slices = ceil((recon_z_end - recon_z_start)/z_spacing)+1
+        total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)
+        f.write('%d\n\n' % total_z_slices)
         f.write('number of voxels in z (total)\n')
-        f.write('%d\n\n' % (useful_z_slices+NumRows*2))
+        f.write('%d\n\n' % total_z_slices)
         f.write('x coordinate of the center voxel (mm)\n')
         f.write('%d\n\n' % 0)
         f.write('y coordinate of the center voxel (mm)\n')
         f.write('%d\n\n' % 0)
         f.write('z coordinate of the center voxel (mm)\n')
-        f.write('%f\n\n' % (recon_z_start+(useful_z_slices-1)/2*0.5476))
+
+        print("total ",total_z_slices," useful ",useful_z_slices)
+        if total_z_slices%2==1:
+            z_center = recon_z_start+(useful_z_slices-1)//2*z_spacing
+        else:
+            z_center = recon_z_start+(useful_z_slices-1)//2*z_spacing
+        f.write('%f\n\n' % z_center)
         f.write('voxel spacing in xy (mm)\n')
         f.write('%f\n\n' % 0.976)
         f.write('voxel spacing in z (mm)\n')
-        f.write('%f\n\n' % 0.5476)
+        f.write('%f\n\n' % z_spacing)
         f.write('radius of the reconstruction mask (mm)\n')
         f.write('%d\n\n' % 250)
         f.write('initial reconstruction image location\n')
@@ -169,6 +182,14 @@ for data_idx in range(0,200):
         f.write('NA\n')
 
 
+
+    skipped_slices =0
+    if total_z_slices%2==0:
+        skipped_slices = (recon_z_start-(z_center-z_spacing/2-(total_z_slices/2-1)*z_spacing)+1e-4)//z_spacing
+    else:
+        skipped_slices = (recon_z_start-(z_center-(total_z_slices//2)*z_spacing)+1e-4)//z_spacing
+
+    print("skipped_slices ",skipped_slices)
 
     outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-parameters/dcm_%03d/prior_qggmrf.txt" % data_idx)
 

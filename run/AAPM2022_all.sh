@@ -1,10 +1,10 @@
 #!/bin/sh -l
 # FILENAME: submit.sh
 
-#SBATCH -N 40
+#SBATCH -N 16
 #SBATCH -C haswell
 #SBATCH -q regular
-#SBATCH -t 04:30:00
+#SBATCH -t 00:30:00
 #SBATCH -J AAPM_all
 
 module load impi
@@ -30,7 +30,7 @@ export DEBUG_MODE=0
 
 #srun -n $NUM_NODES -c 272 --cpu_bind=cores ../src/ct ${forward_model_directory} ${NUM_FOCAL_SPOTS} ${info_recon_directory} ${prior_directory} ${ce_directory} ${recon_directory} 70 ${DUAL_ENERGY} ${DEBUG_MODE} ${NUM_SOURCES}
 
-for i in {134..143}
+for i in {144..147}
 do
 
 	weight_name="aapm-parameters/dcm_$(printf %03d $i)"
@@ -43,7 +43,7 @@ do
 	recon_directory="/global/cscratch1/sd/wang1698/AAPM_2022/recon/dcm$(printf %03d $i)/recon"
 
 
-	srun -n 4 -c 64 --cpu_bind=cores ../src/ct ${forward_model_directory} ${NUM_FOCAL_SPOTS} ${info_recon_directory} ${prior_directory} ${ce_directory} ${recon_directory} 50 ${DUAL_ENERGY} ${DEBUG_MODE} ${NUM_SOURCES} &
+	srun -N 4 -n 4 -c 64 --cpu_bind=cores ../src/ct ${forward_model_directory} ${NUM_FOCAL_SPOTS} ${info_recon_directory} ${prior_directory} ${ce_directory} ${recon_directory} 50 ${DUAL_ENERGY} ${DEBUG_MODE} ${NUM_SOURCES} &
 done
 
 wait

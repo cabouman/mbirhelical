@@ -1,4 +1,0 @@
-improve convergence
-first two iterations rho=0.5
-first two iterations turn off zero skipping
-PNQP=1   turn off positivity constraint for the first two iterations

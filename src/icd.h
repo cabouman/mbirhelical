@@ -13,7 +13,6 @@
 #define abso(a) ((a) > 0 ? (a) : (-1.0*a))
 #define PnP_mode 0
 #define damping_constant 1.0
-#define ind_recon_it 0
 
 struct ICDInfo
 {

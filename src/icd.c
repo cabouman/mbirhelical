@@ -426,7 +426,6 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 				fillNeighbors(icd_info.neighbors,jx,jy,jz,X,img_info); 
 
 				/*** sjk: zero skip check ***/
-				if(it>=stabilization_iters || (it<stabilization_iters && (strcmp(img_info->imgFile, "NA") != 0))){
 
 				if( X[offset+jz] > 0)
 				  zero_skip_flag=0;  /* don't skip */
@@ -439,7 +438,7 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 				    zero_skip_flag=0;
 				  }
 				}
-				}
+
 
 
 				if(zero_skip_flag==0)
@@ -451,10 +450,7 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 				pixel = ICDStep_PriorOnly(&icd_info, prior_info, jx, jy, jz, X, ProximalMapInput, img_info, SigmaLambda);
 
 					/* clip */
-				if(it<stabilization_iters && (strcmp(img_info->imgFile, "NA") == 0))
-					X[offset+jz] = pixel;
-				else
-					X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+				X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
 
 				/* sjk: try without positivity constraint */
 				if (recon_mask[jx][jy]==2)
@@ -546,7 +542,6 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 					fillNeighbors(icd_info.neighbors,jjx,jjy,jz,X,img_info); 
 
 				        /*** sjk: zero skip check ***/
-					if(it>=stabilization_iters ||(it<stabilization_iters && (strcmp(img_info->imgFile, "NA") != 0))){
 
 
 					if( X[offset+jz] > 0)
@@ -560,8 +555,6 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 				    			zero_skip_flag=0;
 				  		}
 					}
-					}
-
 
 					if(zero_skip_flag==0)
 					{
@@ -574,10 +567,7 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 						pixel = ICDStep_PriorOnly(&icd_info, prior_info, jjx, jjy, jz, X, ProximalMapInput, img_info, SigmaLambda);
 
 						/* clip */
-						if(it<stabilization_iters && (strcmp(img_info->imgFile, "NA") == 0))
-							X[offset+jz] = pixel;
-						else
-							X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+						X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
 
 						/* sjk: try without positivity constraint */
 						if (recon_mask[jjx][jjy]==2)
@@ -1010,7 +1000,6 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 			for (jz = tid*img_info->Nz/omp_get_num_threads(); jz < jzmax; jz++)
 			{
 				fillNeighbors(icd_info.neighbors,jx,jy,jz,X,img_info); 
-				if(((it>=stabilization_iters ||	(it<stabilization_iters && (strcmp(img_info->imgFile, "NA") != 0)))&& PnP_mode==0) || PnP_mode==1){
 
 				if( X[offset+jz] > 0)
 				  zero_skip_flag=0; 
@@ -1022,7 +1011,6 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 				  {
 				    zero_skip_flag=0;
 				  }
-				}
 				}
 
 
@@ -1126,7 +1114,6 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 				for (jz = tid*img_info->Nz/omp_get_num_threads(); jz < jzmax; jz++)
 				{
 					fillNeighbors(icd_info.neighbors,jjx,jjy,jz,X,img_info);
-					if(((it>=stabilization_iters ||	(it<stabilization_iters && (strcmp(img_info->imgFile, "NA") != 0)))&& PnP_mode==0) || PnP_mode==1){
 
 					if( X[offset+jz] > 0)
 					  zero_skip_flag=0; 
@@ -1138,7 +1125,6 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 				  		{
 				    			zero_skip_flag=0;
 				  		}
-					}
 					}
 
 
@@ -1307,8 +1293,10 @@ void ICDReconstruct(
 	createSourceLocInfo(&source_loc_info, &sinogram->geom_info);
 	compSourceLocInfo(&source_loc_info, &sinogram->geom_info,myid,NUMPROCS);
 
+
 	//char errorFname[200];
 	//sprintf(errorFname,"%s_%d.test_InitialError",fname,myid);		    	  
+
 
 	/* for writing intial error sinogram */
 	
@@ -1421,6 +1409,7 @@ void ICDReconstruct(
 
 	struct ViewXYInfo stored_view_xy_info;
 	forwardProject(e, X, Y, recon_mask, &(sinogram->geom_info), &(image->img_info),&stored_view_xy_info,myid,NUMPROCS);
+	
 	//writeSinogram_float(errorFname, e, sinogram->geom_info.Nr, sinogram->geom_info.Nc, sinogram->geom_info.Nv);
 
 
@@ -1513,16 +1502,9 @@ void ICDReconstruct(
 
 
 
-		if(it<stabilization_iters && (strcmp(image->img_info.imgFile, "NA") == 0)){
-	 		for (i=0; i<V->img_info.Nz * V->img_info.Ny * V->img_info.Nx; i++){
-                        	V->img[i] = 0.5*V->img[i] + 0.5*VPrevious->img[i];
-                	}
-		}
-		else{
-                	for (i=0; i<V->img_info.Nz * V->img_info.Ny * V->img_info.Nx; i++){
-                        	V->img[i] = ce_info->consensus_rho*V->img[i] + (1-ce_info->consensus_rho)*VPrevious->img[i];
-                	}
-		}
+                for (i=0; i<V->img_info.Nz * V->img_info.Ny * V->img_info.Nx; i++){
+                        V->img[i] = ce_info->consensus_rho*V->img[i] + (1-ce_info->consensus_rho)*VPrevious->img[i];
+                }
 
 
 		

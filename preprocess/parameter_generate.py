@@ -142,7 +142,7 @@ for data_idx in range(0,200):
     outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-parameters/dcm_%03d/forward_model_directory.txt" % data_idx)
 
     with open(outputname.getvalue(),'w') as f:
-        f.write('../data/AAPM-2022/dcm_%03d/detector1/geom_recon.txt\n' % data_idx)
+        f.write('../data/aapm-parameters/dcm_%03d/detector1/geom_recon.txt\n' % data_idx)
 
 
     outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-parameters/dcm_%03d/info_recon.txt" % data_idx)

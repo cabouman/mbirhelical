@@ -32,8 +32,12 @@ for data_idx in range(0,200):
 
     print("length ",len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]))
 
+    #150 has no tube current
+    if data_idx!=150:
+        NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])-1  
+    else:
+        NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
 
-    NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])-1  
 
     if NumViews<10000:
         proj_name=DIR+"proj_0001.dcm"
@@ -142,7 +146,7 @@ for data_idx in range(0,200):
     outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-parameters/dcm_%03d/forward_model_directory.txt" % data_idx)
 
     with open(outputname.getvalue(),'w') as f:
-        f.write('../data/AAPM-2022/dcm_%03d/detector1/geom_recon.txt\n' % data_idx)
+        f.write('../data/aapm-parameters/dcm_%03d/detector1/geom_recon.txt\n' % data_idx)
 
 
     outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-parameters/dcm_%03d/info_recon.txt" % data_idx)
@@ -154,7 +158,11 @@ for data_idx in range(0,200):
         f.write('%d\n\n' % 512)
         f.write('number of voxels in z (good slices)\n')
         useful_z_slices = ceil((recon_z_end - recon_z_start)/z_spacing)+1
-        total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)
+        if data_idx<134:
+            total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)+10
+        else:
+            total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)
+
         f.write('%d\n\n' % total_z_slices)
         f.write('number of voxels in z (total)\n')
         f.write('%d\n\n' % total_z_slices)
@@ -168,7 +176,7 @@ for data_idx in range(0,200):
         if total_z_slices%2==1:
             z_center = recon_z_start+(useful_z_slices-1)//2*z_spacing
         else:
-            z_center = recon_z_start+(useful_z_slices-1)//2*z_spacing
+            z_center = z_spacing/2+recon_z_start+(useful_z_slices-1)//2*z_spacing
         f.write('%f\n\n' % z_center)
         f.write('voxel spacing in xy (mm)\n')
         f.write('%f\n\n' % 0.976)
@@ -201,5 +209,7 @@ for data_idx in range(0,200):
         f.write('Q-GGMRF Prior Parameter, T (soft threshold for edges):\n')
         f.write('%f\n\n' % 1)
         f.write('Prior Regularization parameter, sigmaX, (mm^-1) (increasing sigmaX decreases regularization) :\n')
-        f.write('%f\n' % 0.9)
-
+        if data_idx <134:
+            f.write('%f\n' % 0.7)
+        else:
+            f.write('%f\n' % 0.8)

@@ -158,7 +158,11 @@ for data_idx in range(0,200):
         f.write('%d\n\n' % 512)
         f.write('number of voxels in z (good slices)\n')
         useful_z_slices = ceil((recon_z_end - recon_z_start)/z_spacing)+1
-        total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)
+        if data_idx<134:
+            total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)+10
+        else:
+            total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)
+
         f.write('%d\n\n' % total_z_slices)
         f.write('number of voxels in z (total)\n')
         f.write('%d\n\n' % total_z_slices)
@@ -172,7 +176,7 @@ for data_idx in range(0,200):
         if total_z_slices%2==1:
             z_center = recon_z_start+(useful_z_slices-1)//2*z_spacing
         else:
-            z_center = recon_z_start+(useful_z_slices-1)//2*z_spacing
+            z_center = z_spacing/2+recon_z_start+(useful_z_slices-1)//2*z_spacing
         f.write('%f\n\n' % z_center)
         f.write('voxel spacing in xy (mm)\n')
         f.write('%f\n\n' % 0.976)

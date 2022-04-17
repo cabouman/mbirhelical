@@ -58,8 +58,10 @@ for data_idx in range(my_range_start,my_range_end):
 
     print("length ",len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]))
 
-
-    NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])-1  
+    if data_idx !=150:
+        NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])-1  
+    else:
+        NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])           
 
     if NumViews<10000:
         proj_name=DIR+"proj_0001.dcm"
@@ -97,6 +99,37 @@ for data_idx in range(my_range_start,my_range_end):
 
 
     weight = torch.exp(-0.3*focal1_Proj)
+
+
+    if data_idx!=144 and data_idx!=150:
+        tube_current=torch.zeros(NumViews)
+
+        if NumViews<10000:
+            current_name = "mAs_vector_%04d.bin" % NumViews
+        else:
+            current_name = "mAs_vector_%05d.bin" % NumViews
+
+
+        
+
+        current_name = DIR+ current_name
+
+        with open(current_name,'rb') as f:
+            tube_current=np.fromfile(f, dtype=np.float32)
+        
+
+
+        tube_current=tube_current/tube_current[0];
+
+
+        for j in range (0,NumViews):
+            weight[j,:,:]=weight[j,:,:]*tube_current[j]
+
+
+
+
+
+
 
 
     outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_proj.sino" % data_idx)

@@ -32,8 +32,12 @@ for data_idx in range(0,200):
 
     print("length ",len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))]))
 
+    #150 has no tube current
+    if data_idx!=150:
+        NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])-1  
+    else:
+        NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
 
-    NumViews=len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])-1  
 
     if NumViews<10000:
         proj_name=DIR+"proj_0001.dcm"
@@ -201,5 +205,7 @@ for data_idx in range(0,200):
         f.write('Q-GGMRF Prior Parameter, T (soft threshold for edges):\n')
         f.write('%f\n\n' % 1)
         f.write('Prior Regularization parameter, sigmaX, (mm^-1) (increasing sigmaX decreases regularization) :\n')
-        f.write('%f\n' % 0.9)
-
+        if data_idx <134:
+            f.write('%f\n' % 0.7)
+        else:
+            f.write('%f\n' % 0.8)

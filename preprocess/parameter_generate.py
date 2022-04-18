@@ -210,6 +210,6 @@ for data_idx in range(0,200):
         f.write('%f\n\n' % 1)
         f.write('Prior Regularization parameter, sigmaX, (mm^-1) (increasing sigmaX decreases regularization) :\n')
         if data_idx <134:
-            f.write('%f\n' % 0.7)
+            f.write('%f\n' % 0.6)
         else:
             f.write('%f\n' % 0.8)

@@ -28,8 +28,8 @@ export DUAL_ENERGY=0
 export DEBUG_MODE=0
 
 
+weight_name="aapm-parameters/dcm_067"
 
-weight_name="AAPM-2022/dcm_067"
 echo "${weight_name}"
 
 forward_model_directory="../data/${weight_name}/forward_model_directory.txt"

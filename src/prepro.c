@@ -54,10 +54,16 @@ void clipImage(ENTRY *X, char **recon_mask, struct ImgInfo *img_info)
 
 		/* pixels out of the reconstruction scope are set to be 0 */
 		/* pixels whose value is negative are set to be 0 */
-		if (recon_mask[jx][jy] == 0 || X[j] < 0.0)
+//		if (recon_mask[jx][jy] == 0 || X[j] < 0.0)
+//		{
+//			X[j] = 0;
+//		}
+//
+		if (recon_mask[jx][jy] == 0)
 		{
 			X[j] = 0;
 		}
+
 	}
 }
 

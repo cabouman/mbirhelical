@@ -450,7 +450,11 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 				pixel = ICDStep_PriorOnly(&icd_info, prior_info, jx, jy, jz, X, ProximalMapInput, img_info, SigmaLambda);
 
 					/* clip */
-				X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+				//X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+
+				/* no clipping for now trying*/
+				X[offset+jz] = pixel;  /* sjk */
+
 
 				/* sjk: try without positivity constraint */
 				if (recon_mask[jx][jy]==2)
@@ -567,7 +571,14 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 						pixel = ICDStep_PriorOnly(&icd_info, prior_info, jjx, jjy, jz, X, ProximalMapInput, img_info, SigmaLambda);
 
 						/* clip */
-						X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+						//X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+
+
+
+						/* no clipping for now try */
+						X[offset+jz] = pixel; 
+
+
 
 						/* sjk: try without positivity constraint */
 						if (recon_mask[jjx][jjy]==2)
@@ -1033,10 +1044,11 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 					pixel = ICDStep_Likelihood(&icd_info, prior_info, jx, jy, jz, X, e, D, TildeV,geom_info->lambda0,img_info, &col_xyz, SigmaLambda,consensus_X,it,DE_numprocs);
 					pixel = X[offset+jz] + damping_constant*(pixel - X[offset+jz]);
+					/* clip */
+					//X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);
 
-					X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);
-
-
+					/* no clipping for now try */
+					X[offset+jz] = pixel; 
 
 
 					diff = X[offset+jz]-icd_info.v; 
@@ -1147,7 +1159,12 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 						pixel = ICDStep_Likelihood(&icd_info, prior_info, jjx, jjy, jz, X, e, D, TildeV, geom_info->lambda0, img_info, &col_xyz, SigmaLambda,consensus_X,it,DE_numprocs);
 						pixel = X[offset+jz] + damping_constant*(pixel - X[offset+jz]);
 
-						X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel); 
+
+						/* clip */
+						//X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel); 
+
+						/* no clipping for now try */
+						X[offset+jz] = pixel; 
 
 						diff = X[offset+jz]-icd_info.v;
 

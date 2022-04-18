@@ -243,7 +243,6 @@ void createViewXYInfo_stored(
 	view_xy_info->ic_start = (CHANNEL **)malloc(sizeof(CHANNEL*) *img_info->Nx* img_info->Ny );
 	view_xy_info->ic_num = (PROCHANNEL **)malloc( sizeof(PROCHANNEL*) *img_info->Nx * img_info->Ny);
 	view_xy_info->Mag = (ENTRY **)malloc( sizeof(ENTRY*)*img_info->Nx * img_info->Ny);
-	view_xy_info->Wr = (ENTRY **)malloc(sizeof(ENTRY*)*img_info->Nx * img_info->Ny);
 	//view_xy_info->B = (ENTRY ***)malloc(sizeof(ENTRY**)*img_info->Nx * img_info->Ny);
 
 	for(int i=0;i<(img_info->Nx * img_info->Ny);i++){
@@ -254,7 +253,6 @@ void createViewXYInfo_stored(
 			view_xy_info->ic_start[i]=(CHANNEL *)malloc(sizeof(CHANNEL)*geom_info->Nv);
 			view_xy_info->ic_num[i]=(PROCHANNEL *)malloc(sizeof(PROCHANNEL)*geom_info->Nv);
 			view_xy_info->Mag[i] = (ENTRY *)malloc(sizeof(ENTRY)*geom_info->Nv);
-			view_xy_info->Wr[i] = (ENTRY *)malloc(sizeof(ENTRY)*geom_info->Nv);
 			//view_xy_info->B[i] = (ENTRY **)malloc(sizeof(ENTRY*)*geom_info->Nv);
 		}
 	}
@@ -313,7 +311,6 @@ void compViewXYInfo_OnTheFly(
 		
 		//view_xy_info->Mag[iv] = (geom_info->r_sd)/r_sv;
 
-		//view_xy_info->Wr[iv] = (img_info->Del_z)*(view_xy_info->Mag[iv]);
 
 		Wc = (img_info->Del_xy)*costh/r_sv;
 
@@ -411,7 +408,6 @@ void compViewXYInfo(
 		
 		view_xy_info->Mag[jx*img_info->Ny+jy][iv] = (geom_info->r_sd)/r_sv;
 
-		view_xy_info->Wr[jx*img_info->Ny+jy][iv] = (img_info->Del_z)*(view_xy_info->Mag[jx*img_info->Ny+jy][iv]);
 
 		Wc = (img_info->Del_xy)*costh/r_sv;
 
@@ -474,7 +470,6 @@ void freeViewXYInfo(
 {
 	//free(view_xy_info->ic_num);
 	//free(view_xy_info->Mag);
-	//free(view_xy_info->Wr);
 	free(view_xy_info->B);
 }
 
@@ -490,7 +485,6 @@ void freeViewXYInfo_stored(
 			free(view_xy_info->ic_start[i]);
 			free(view_xy_info->ic_num[i]);
 			free(view_xy_info->Mag[i]);
-			free(view_xy_info->Wr[i]);
 			//for (int iv = 0; iv < geom_info->Nv; iv++)
 			//{
 			//	free(view_xy_info->B[i][iv]);
@@ -502,7 +496,6 @@ void freeViewXYInfo_stored(
 	free(view_xy_info->ic_start);
 	free(view_xy_info->ic_num);
 	free(view_xy_info->Mag);
-	free(view_xy_info->Wr);
 	//free(view_xy_info->B);
 }
 
@@ -681,7 +674,8 @@ void compAColxyzOnFly(
 				/* ATTENTION!! CHANGE SIGN HERE! ROW 0 IS CLOSEST */
 				del_r = view_xy_info->Mag[jx*img_info->Ny+jy][iv]*(z-source_loc_info->zs[iv]) + ir*geom_info->Del_dr - geom_info->half_detr;
 
-				Cij = clip(0.0, (((view_xy_info->Wr[jx*img_info->Ny+jy][iv]+geom_info->Del_dr)/2.0)-fabs(del_r)), min(view_xy_info->Wr[jx*img_info->Ny+jy][iv], geom_info->Del_dr));
+						
+				Cij = clip(0.0, ((((img_info->Del_z)*view_xy_info->Mag[jx*img_info->Ny+jy][iv]+geom_info->Del_dr)/2.0)-fabs(del_r)), min((img_info->Del_z)*view_xy_info->Mag[jx*img_info->Ny+jy][iv], geom_info->Del_dr));
 				Cij *= (sqrt((source_loc_info->xs[iv]-x)*(source_loc_info->xs[iv]-x) + (source_loc_info->ys[iv]-y)*(source_loc_info->ys[iv]-y) + (source_loc_info->zs[iv]-z)*(source_loc_info->zs[iv]-z)));
 				Cij /= (sqrt((source_loc_info->xs[iv]-x)*(source_loc_info->xs[iv]-x) + (source_loc_info->ys[iv]-y)*(source_loc_info->ys[iv]-y))*geom_info->Del_dr);
 				Atmp = view_xy_info->B[iv][p]*Cij;

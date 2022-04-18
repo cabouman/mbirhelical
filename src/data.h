@@ -116,7 +116,6 @@ struct ViewXYInfo		/* depend on (x,y), independent of z */
 	CHANNEL	**ic_start;	/* ic_start[iv], 0 <= iv < Nv */
 	PROCHANNEL **ic_num;	/* ic_num[iv], 0 <= iv < Nv */
 	ENTRY **Mag;		/* Mag[iv], 0 <= iv < Nv */
-	ENTRY **Wr;		/* Wr[iv], 0 <= iv < Nv */
 	ENTRY **B;		/* B[iv][p], 0 <= iv < Nv, 0 <= p < ic_num[iv] */
 };
 

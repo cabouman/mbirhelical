@@ -961,7 +961,6 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 	view_xy_info.ic_start=stored_view_xy_info->ic_start;
 	view_xy_info.ic_num = stored_view_xy_info->ic_num;
 	view_xy_info.Mag = stored_view_xy_info->Mag;
-	view_xy_info.Wr = stored_view_xy_info->Wr;
 
 
 //	fprintf(stdout,"after reach createACol\n");
@@ -1271,8 +1270,8 @@ void ICDReconstruct(
 
 
 	/* clip X */
-	
-	clipImage(X, recon_mask, &(image->img_info));  /// Don't clip V, or Vmean or consensus_X,or TildeV! They should be negative!
+	/*voxels outside of recon_mask are already set to 0 in ct.c So no need to clip it here*/
+	//clipImage(X, recon_mask, &(image->img_info));  /// Don't clip V, or Vmean or consensus_X,or TildeV! They should be negative!
 
 
 	/* this is critical--projector skips pixels outside mask */

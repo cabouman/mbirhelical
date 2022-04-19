@@ -111,12 +111,16 @@ struct SourceLocInfo		/* indepenedent of (x,y,z) */
 	ENTRY *zs;		/* z coord. of the source, zs[iv], 0 <= iv < Nv */
 };
 
+
 struct ViewXYInfo		/* depend on (x,y), independent of z */
 {
-	CHANNEL	**ic_start;	/* ic_start[iv], 0 <= iv < Nv */
-	PROCHANNEL **ic_num;	/* ic_num[iv], 0 <= iv < Nv */
-	ENTRY **Mag;		/* Mag[iv], 0 <= iv < Nv */
-	ENTRY **B;		/* B[iv][p], 0 <= iv < Nv, 0 <= p < ic_num[iv] */
+	CHANNEL	***ic_start;	/* ic_start[iv], 0 <= iv < Nv */
+	PROCHANNEL ***ic_num;	/* ic_num[iv], 0 <= iv < Nv */
+	unsigned char ***Mag;		/* Mag[iv], 0 <= iv < Nv */
+	ENTRY *Mag_MaxPointer;
+	//ENTRY ***Wr;		/* Wr[iv], 0 <= iv < Nv */
+	unsigned char ****B;		/* B[iv][p], 0 <= iv < Nv, 0 <= p < ic_num[iv] */
+	ENTRY *B_MaxPointer;
 };
 
 

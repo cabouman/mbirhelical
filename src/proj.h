@@ -77,15 +77,18 @@ void createViewXYZInfo(
 	struct ViewXYZInfo *view_xyz_info,
 	struct GeomInfo *geom_info);
 
+
 void compViewXYZInfo(
 	int jx,
 	int jy,
+	int jz,
 	float z,
 	struct ViewXYZInfo *view_xyz_info,
 	struct GeomInfo *geom_info,
 	struct ImgInfo *img_info,
 	struct SourceLocInfo *source_loc_info,
 	struct ViewXYInfo *view_xy_info);
+
 
 void freeViewXYZInfo(struct ViewXYZInfo *view_xyz_info);
 

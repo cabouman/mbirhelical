@@ -373,7 +373,6 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 	int j, jx, jy, jz, jzmax, Nxy, Nyz;
 	float x, y, z, pixel, diff;
 	struct ACol col_xyz;
-	struct ViewXYInfo view_xy_info;
 	struct ViewXYZInfo view_xyz_info;
 	struct ICDInfo icd_info;
 
@@ -450,10 +449,10 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 				pixel = ICDStep_PriorOnly(&icd_info, prior_info, jx, jy, jz, X, ProximalMapInput, img_info, SigmaLambda);
 
 					/* clip */
-				//X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+				X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
 
 				/* no clipping for now trying*/
-				X[offset+jz] = pixel;  /* sjk */
+				//X[offset+jz] = pixel;  /* sjk */
 
 
 				/* sjk: try without positivity constraint */
@@ -571,12 +570,12 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 						pixel = ICDStep_PriorOnly(&icd_info, prior_info, jjx, jjy, jz, X, ProximalMapInput, img_info, SigmaLambda);
 
 						/* clip */
-						//X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+						X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
 
 
 
 						/* no clipping for now try */
-						X[offset+jz] = pixel; 
+						//X[offset+jz] = pixel; 
 
 
 
@@ -939,7 +938,7 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 	struct ACol col_xyz;
 	struct ViewXYZInfo view_xyz_info;
 	struct ICDInfo icd_info;
-	struct ViewXYInfo view_xy_info;
+	//struct ViewXYInfo view_xy_info;
 
 
 
@@ -957,10 +956,11 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 	//fflush(stdout);
 
 	createACol(&col_xyz, COL_LEN);		/* TODO COL_LEN hard-coded */
-	createViewXYInfo(&view_xy_info, geom_info);
-	view_xy_info.ic_start=stored_view_xy_info->ic_start;
-	view_xy_info.ic_num = stored_view_xy_info->ic_num;
-	view_xy_info.Mag = stored_view_xy_info->Mag;
+	//createViewXYInfo(&view_xy_info, geom_info);
+	//view_xy_info.ic_start=stored_view_xy_info->ic_start;
+	//view_xy_info.ic_num = stored_view_xy_info->ic_num;
+	//view_xy_info.Mag = stored_view_xy_info->Mag;
+	//view_xy_info.B = stored_view_xy_info->B;
 
 
 //	fprintf(stdout,"after reach createACol\n");
@@ -1004,7 +1004,7 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 			y = img_info->y0 + jy*img_info->Del_xy;
 
 			
-			compViewXYInfo_OnTheFly(jx,jy,x, y, &view_xy_info, geom_info, img_info, source_loc_info);
+			//:compViewXYInfo_OnTheFly(jx,jy,x, y, &view_xy_info, geom_info, img_info, source_loc_info);
 
 			offset= jx*Nyz + jy*img_info->Nz; 
 			for (jz = tid*img_info->Nz/omp_get_num_threads(); jz < jzmax; jz++)
@@ -1031,9 +1031,9 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 
 
-				compViewXYZInfo(jx,jy,z, &view_xyz_info, geom_info, img_info, source_loc_info, &view_xy_info);
+				compViewXYZInfo(jx,jy,jz, z, &view_xyz_info, geom_info, img_info, source_loc_info, stored_view_xy_info);
 				
-				compAColxyzOnFly(jx,jy,jz,x, y, z, geom_info, source_loc_info, &view_xy_info, &view_xyz_info, &col_xyz,img_info);
+				compAColxyzOnFly(jx,jy,jz,x, y, z, geom_info, source_loc_info, stored_view_xy_info, &view_xyz_info, &col_xyz,img_info);
 
 
 
@@ -1044,10 +1044,10 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 					pixel = ICDStep_Likelihood(&icd_info, prior_info, jx, jy, jz, X, e, D, TildeV,geom_info->lambda0,img_info, &col_xyz, SigmaLambda,consensus_X,it,DE_numprocs);
 					pixel = X[offset+jz] + damping_constant*(pixel - X[offset+jz]);
 					/* clip */
-					//X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);
+					X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);
 
 					/* no clipping for now try */
-					X[offset+jz] = pixel; 
+					//X[offset+jz] = pixel; 
 
 
 					diff = X[offset+jz]-icd_info.v; 
@@ -1066,7 +1066,7 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 				}
 				} 
 			}
-			freeViewXYInfoB(&view_xy_info, geom_info);		
+	//		freeViewXYInfoB(&view_xy_info, geom_info);		
 		}
 		
 	}
@@ -1116,7 +1116,7 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 
 				
-				compViewXYInfo_OnTheFly(jjx,jjy,x, y, &view_xy_info, geom_info, img_info, source_loc_info);
+				//compViewXYInfo_OnTheFly(jjx,jjy,x, y, &view_xy_info, geom_info, img_info, source_loc_info);
 
 				
 				
@@ -1146,10 +1146,10 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 
 
-					compViewXYZInfo(jjx,jjy,z, &view_xyz_info, geom_info, img_info, source_loc_info, &view_xy_info);
+					compViewXYZInfo(jjx,jjy,jz, z, &view_xyz_info, geom_info, img_info, source_loc_info, stored_view_xy_info);
 
 
-					compAColxyzOnFly(jjx,jjy,jz,x, y, z, geom_info, source_loc_info, &view_xy_info, &view_xyz_info, &col_xyz,img_info);
+					compAColxyzOnFly(jjx,jjy,jz,x, y, z, geom_info, source_loc_info, stored_view_xy_info, &view_xyz_info, &col_xyz,img_info);
 					
 
 
@@ -1160,10 +1160,10 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 
 						/* clip */
-						//X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel); 
+						X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel); 
 
 						/* no clipping for now try */
-						X[offset+jz] = pixel; 
+						//X[offset+jz] = pixel; 
 
 						diff = X[offset+jz]-icd_info.v;
 
@@ -1180,7 +1180,7 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 				
 				
-				freeViewXYInfoB(&view_xy_info, geom_info);
+	//			freeViewXYInfoB(&view_xy_info, geom_info);
 						
 				
 			}
@@ -1188,7 +1188,6 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 		}
 	}
 
-	freeViewXYInfo(&view_xy_info, geom_info);
 	freeViewXYZInfo(&view_xyz_info);
 	freeACol(&col_xyz);
 	free((void *)voxel_list);

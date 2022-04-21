@@ -426,7 +426,7 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 
 				/*** sjk: zero skip check ***/
 
-				if( X[offset+jz] > 0)
+				if( X[offset+jz] > 0  || positive_constraint ==0)
 				  zero_skip_flag=0;  /* don't skip */
 				else
 				{
@@ -449,8 +449,12 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 				pixel = ICDStep_PriorOnly(&icd_info, prior_info, jx, jy, jz, X, ProximalMapInput, img_info, SigmaLambda);
 
 					/* clip */
-				X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
-
+				if(positive_constraint ==1){
+					X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+				}
+				else{
+					X[offset+jz] = pixel; 
+				}
 				/* no clipping for now trying*/
 				//X[offset+jz] = pixel;  /* sjk */
 
@@ -547,7 +551,7 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 				        /*** sjk: zero skip check ***/
 
 
-					if( X[offset+jz] > 0)
+					if( X[offset+jz] > 0 || positive_constraint ==0)
 					  zero_skip_flag=0;  /* don't skip */
 					else
 					{
@@ -570,8 +574,13 @@ void paraICD_Prior(struct ImgInfo *img_info,struct PriorInfo *prior_info,char **
 						pixel = ICDStep_PriorOnly(&icd_info, prior_info, jjx, jjy, jz, X, ProximalMapInput, img_info, SigmaLambda);
 
 						/* clip */
-						X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+						if (positive_constraint ==1){	
+							X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+						}
+						else{
+							X[offset+jz] = pixel; 
 
+						}
 
 
 						/* no clipping for now try */
@@ -1011,7 +1020,7 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 			{
 				fillNeighbors(icd_info.neighbors,jx,jy,jz,X,img_info); 
 
-				if( X[offset+jz] > 0)
+				if( X[offset+jz] > 0 || positive_constraint ==0)
 				  zero_skip_flag=0; 
 				else
 				{
@@ -1044,11 +1053,13 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 					pixel = ICDStep_Likelihood(&icd_info, prior_info, jx, jy, jz, X, e, D, TildeV,geom_info->lambda0,img_info, &col_xyz, SigmaLambda,consensus_X,it,DE_numprocs);
 					pixel = X[offset+jz] + damping_constant*(pixel - X[offset+jz]);
 					/* clip */
-					X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);
-
-					/* no clipping for now try */
-					//X[offset+jz] = pixel; 
-
+					if(positive_constraint ==1){
+						X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);
+					}
+					else{
+						/* no clipping for now try */
+						X[offset+jz] = pixel; 
+					}
 
 					diff = X[offset+jz]-icd_info.v; 
 					updateError(e, &(col_xyz), diff);
@@ -1126,7 +1137,7 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 				{
 					fillNeighbors(icd_info.neighbors,jjx,jjy,jz,X,img_info);
 
-					if( X[offset+jz] > 0)
+					if( X[offset+jz] > 0 || positive_constraint ==0)
 					  zero_skip_flag=0; 
 					else
 					{
@@ -1160,10 +1171,13 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 
 						/* clip */
-						X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel); 
-
+						if(positive_constraint ==1){
+							X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel); 
+						}
+						else{
 						/* no clipping for now try */
-						//X[offset+jz] = pixel; 
+							X[offset+jz] = pixel; 
+						}
 
 						diff = X[offset+jz]-icd_info.v;
 
@@ -1320,16 +1334,50 @@ void ICDReconstruct(
 
 
 
+
+
+
+
+	/* write out the image after each iteration */
+	/*
+	if(PnP_mode){	
+		strcpy(name, "write_");
+		sprintf(suffix, "myid%d.vjk",myid);
+		strcat(name, fname);
+		strcat(name, suffix);
+		writeImage(name, consensus_X);
+	}
+	else{
+		strcpy(name, "write_");
+		sprintf(suffix, "myid%d.vjk",myid);
+		strcat(name, fname);
+		strcat(name, suffix);
+		writeImage(name, Vmean);
+	}
+	
+	strcpy(name, "");
+	sprintf(suffix, "_write_myid%d_X.vjk", myid);
+	strcat(name, fname);
+	strcat(name, suffix);
+	writeImage(name, image);
+	*/
+
+
+
+
+
+
+
+
+
+
+
 	struct ViewXYInfo stored_view_xy_info;
 	forwardProject(e, X, Y, recon_mask, &(sinogram->geom_info), &(image->img_info),&stored_view_xy_info,myid,NUMPROCS);
 	
 	//writeSinogram_float(errorFname, e, sinogram->geom_info.Nr, sinogram->geom_info.Nc, sinogram->geom_info.Nv);
 
 
-	
-
-
-/* reading initial error sinogram */	
 /*
  	 readSinogram_float(errorFname, e, sinogram->geom_info.Nr * sinogram->geom_info.Nc* sinogram->geom_info.Nv);
 */	
@@ -1479,6 +1527,7 @@ void ICDReconstruct(
                 strcat(name, fname);
                 strcat(name, suffix);
                 writeImage(name, TildeV);
+
 
 	}
 

@@ -98,10 +98,7 @@ for data_idx in range(my_range_start,my_range_end):
     print("focal1_Proj after permute ",focal1_Proj.shape)
 
     
-    if data_idx>=134:
-        weight = torch.exp(-0.3*focal1_Proj)
-    else:
-        weight = torch.exp(-0.15*focal1_Proj)
+    weight = torch.exp(-0.3*focal1_Proj)
 
 
 

@@ -98,7 +98,7 @@ for data_idx in range(0,200):
         f.write('un-normalized pitch (det rows/rot)\n')
         f.write('%f\n\n' % 35.0475)
         f.write('X-ray source initial z position (mm)\n')
-        f.write('%d\n\n' % 0)
+        f.write('%f\n\n' % 0)
         f.write('view angle spacing (rad)\n')
         f.write('%.10f\n\n' % 0.006283185307)
         f.write('detector channel angle spacing (rad)\n')
@@ -139,7 +139,7 @@ for data_idx in range(0,200):
 
     with open(outputname.getvalue(),'w') as f:
         f.write('SigmaLambda\n')
-        f.write('%d\n\n' % 20)
+        f.write('%f\n\n' % 0.05)
         f.write('Rho Consensus (damping):\n')
         f.write('%f\n' % 0.8)
 
@@ -210,6 +210,6 @@ for data_idx in range(0,200):
         f.write('%f\n\n' % 1)
         f.write('Prior Regularization parameter, sigmaX, (mm^-1) (increasing sigmaX decreases regularization) :\n')
         if data_idx <134:
-            f.write('%f\n' % 0.6)
+            f.write('%f\n' % 0.5)
         else:
-            f.write('%f\n' % 0.8)
+            f.write('%f\n' % 0.3)

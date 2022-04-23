@@ -44,6 +44,8 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+
+
 	sinogram.geom_info.num_focal_spots = atoi(argv[2]);
 	sinogram.geom_info.num_sources = atoi(argv[10]);
 	
@@ -74,17 +76,11 @@ int main(int argc, char *argv[])
 
 
 	char fname_consensus[300];
-    	sprintf(fname_consensus,"%smyid%d.vjk",image.img_info.imgFile, myid);		
-	char fname_X[300];
-    	sprintf(fname_X,"%smyid%d_X.vjk",image.img_info.imgFile, myid);		
-	char fname_V[300];
-    	sprintf(fname_V,"%smyid%d_V.vjk",image.img_info.imgFile, myid);		
-	char fname_TildeV[300];
-    	sprintf(fname_TildeV,"%smyid%d_TildeV.vjk",image.img_info.imgFile, myid);		
+    	sprintf(fname_consensus,"%smyid0.vjk",image.img_info.imgFile);		
 
 
 
-	fprintf(stdout,"fname_consensus is %s fname_X %s fname_V %s fname_TildeV %s\n",fname_consensus,fname_X,fname_V,fname_TildeV);
+	fprintf(stdout,"fname_consensus is %s\n",fname_consensus);
 
 
 	/* fill in intermediate variables */
@@ -141,12 +137,12 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		readImage(fname_X, &image);
-                readImage(fname_V, &V);
+		readImage(fname_consensus, &image);
+                readImage(fname_consensus, &V);
                 readImage(fname_consensus, &consensus_X);
-                readImage(fname_TildeV, &TildeV);
-                readImage(fname_V, &VPrevious);
-		readImage(fname_V, &Vmean);
+                readImage(fname_consensus, &TildeV);
+                readImage(fname_consensus, &VPrevious);
+		readImage(fname_consensus, &Vmean);
 	}
 	printImgInfo(&(image.img_info));
 		

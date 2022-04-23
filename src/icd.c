@@ -1487,47 +1487,26 @@ void ICDReconstruct(
 
 
 	
+
+		if (myid==0){
+			/* write out the image after each iteration */
+			if(PnP_mode){	
+				strcpy(name, "");
+				sprintf(suffix, "myid%d.vjk",myid);
+				strcat(name, fname);
+				strcat(name, suffix);
+				writeImage(name, consensus_X);
+			}
+			else{
+				strcpy(name, "");
+				sprintf(suffix, "myid%d.vjk",myid);
+				strcat(name, fname);
+				strcat(name, suffix);
+				writeImage(name, Vmean);
+			}
+		}
+
 		MPI_Barrier(*DE_comm);
-
-
-		/* write out the image after each iteration */
-		if(PnP_mode){	
-			strcpy(name, "");
-			sprintf(suffix, "myid%d.vjk",myid);
-			strcat(name, fname);
-			strcat(name, suffix);
-			writeImage(name, consensus_X);
-		}
-		else{
-			strcpy(name, "");
-			sprintf(suffix, "myid%d.vjk",myid);
-			strcat(name, fname);
-			strcat(name, suffix);
-			writeImage(name, Vmean);
-		}
-		
-                strcpy(name, "");
-                sprintf(suffix, "myid%d_X.vjk", myid);
-                strcat(name, fname);
-                strcat(name, suffix);
-                writeImage(name, image);
-	
-
-	
-                strcpy(name, "");
-                sprintf(suffix, "myid%d_V.vjk", myid);
-                strcat(name, fname);
-                strcat(name, suffix);
-                writeImage(name, V);
-
-
-	
-                strcpy(name, "");
-                sprintf(suffix, "myid%d_TildeV.vjk",myid);
-                strcat(name, fname);
-                strcat(name, suffix);
-                writeImage(name, TildeV);
-
 
 	}
 

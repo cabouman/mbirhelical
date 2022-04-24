@@ -133,7 +133,7 @@ for data_idx in range(my_range_start,my_range_end):
 
 
 
-    outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_proj.sino" % data_idx)
+    outputname=StringIO("/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_proj.sino" % data_idx)
 
     with open(outputname.getvalue(),'w') as f:
         f.write('%d ' % NumRows)
@@ -145,7 +145,7 @@ for data_idx in range(my_range_start,my_range_end):
         np.array(focal1_Proj.cpu().numpy(),dtype=np.float32).tofile(f)
 
 
-    outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_weight.wght" % data_idx)
+    outputname=StringIO("/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_weight.wght" % data_idx)
 
     with open(outputname.getvalue(),'w') as f:
         f.write('%d ' % NumRows)

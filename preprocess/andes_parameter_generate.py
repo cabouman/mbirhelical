@@ -2,12 +2,6 @@ import json
 import argparse
 import os
 import subprocess
-import torch
-from torch import nn, optim
-from torch.utils.data import DataLoader
-from torch.nn import functional as F
-import torch.distributed as dist
-from torch.nn.parallel import DistributedDataParallel as DDP
 import time
 import matplotlib.pyplot as plt
 from scipy.io import savemat
@@ -17,7 +11,6 @@ import pydicom
 from io import StringIO
 from math import ceil
 
-device = torch.device('cuda:0')
 
 
 for data_idx in range(0,200):
@@ -140,9 +133,9 @@ for data_idx in range(0,200):
     with open(outputname.getvalue(),'w') as f:
         f.write('SigmaLambda\n')
         if data_idx <134:
-            f.write('%f\n\n' % 0.005)
-        else:
             f.write('%f\n\n' % 0.03)
+        else:
+            f.write('%f\n\n' % 0.15)
         
         f.write('Rho Consensus (damping):\n')
         f.write('%f\n' % 0.8)
@@ -166,7 +159,7 @@ for data_idx in range(0,200):
         f.write('number of voxels in z (good slices)\n')
         useful_z_slices = ceil((recon_z_end - recon_z_start)/z_spacing)+1
         if data_idx<134:
-            total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)+10
+            total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)+30
         else:
             total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)
 
@@ -193,8 +186,8 @@ for data_idx in range(0,200):
         f.write('%d\n\n' % 250)
         f.write('initial reconstruction image location\n')
 
-        #recon_dir="/gpfs/alpine/gen006/scratch/xf9/recon/dcm%03d/recon" % (data_idx)   
-        recon_dir="NA"
+        recon_dir="/gpfs/alpine/gen006/scratch/xf9/recon/dcm%03d/recon" % (data_idx)   
+        #recon_dir="NA"
 
         f.write(recon_dir+'\n\n')
         f.write('mask file location\n')

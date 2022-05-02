@@ -1,7 +1,9 @@
 # For Linux or any machines with gcc compiler
-CC = cc
+# For andes
+CC = mpicc
 #CFLAGS = -Wall -qopenmp  -no-ansi-alias -restrict -xMIC-AVX512 -O3 -no-prec-div
-CFLAGS =  -Wall -qopenmp -no-ansi-alias -restrict -xCORE-AVX2 -O3 -no-prec-div
+CFLAGS =  -Wall -fopenmp -Wno-cast-align -Wrestrict -O3 -fno-tree-dce 
+
 
 
 all: ct clean

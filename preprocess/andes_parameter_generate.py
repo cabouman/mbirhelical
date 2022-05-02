@@ -133,7 +133,7 @@ for data_idx in range(0,200):
     with open(outputname.getvalue(),'w') as f:
         f.write('SigmaLambda\n')
         if data_idx <134:
-            f.write('%f\n\n' % 0.03)
+            f.write('%f\n\n' % 0.10)
         else:
             f.write('%f\n\n' % 0.15)
         
@@ -159,7 +159,7 @@ for data_idx in range(0,200):
         f.write('number of voxels in z (good slices)\n')
         useful_z_slices = ceil((recon_z_end - recon_z_start)/z_spacing)+1
         if data_idx<134:
-            total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)+30
+            total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)+10
         else:
             total_z_slices = useful_z_slices+ceil(35.0475*2/z_spacing)
 
@@ -183,7 +183,11 @@ for data_idx in range(0,200):
         f.write('voxel spacing in z (mm)\n')
         f.write('%f\n\n' % z_spacing)
         f.write('radius of the reconstruction mask (mm)\n')
-        f.write('%d\n\n' % 250)
+        if data_idx<134:
+            f.write('%d\n\n' % 290)
+        else:
+            f.write('%d\n\n' % 250)
+
         f.write('initial reconstruction image location\n')
 
         recon_dir="/gpfs/alpine/gen006/scratch/xf9/recon/dcm%03d/recon" % (data_idx)   

@@ -32,14 +32,15 @@ device = torch.device('cuda:{}'.format(local_rank))
 
 dist.init_process_group('nccl', rank=world_rank, world_size=world_size)
 
-
+def ceil(a, b):
+        return -1 * (-a // b)
 
 print("reach here ",world_rank)
 
 total_datasets = 200
-my_range_start =  total_datasets//world_size * world_rank
+my_range_start =  np.clip(ceil(total_datasets,world_size) * world_rank,a_min=None, a_max = total_datasets)
 if world_rank != (world_size-1):
-    my_range_end = np.clip(total_datasets//world_size * (world_rank+1),a_min=None, a_max = total_datasets)
+    my_range_end = np.clip(ceil(total_datasets,world_size) * (world_rank+1),a_min=None, a_max = total_datasets)
 else:
     my_range_end = total_datasets
 
@@ -72,10 +73,8 @@ for data_idx in range(my_range_start,my_range_end):
 
     NumRows=proj_info.Columns
     NumChannels=proj_info.Rows
-    RescaleSlope = proj_info.RescaleSlope
-    RescaleIntercept = proj_info.RescaleIntercept
 
-    print("NumRows ",NumRows, " NumChannels ",NumChannels," NumViews ",NumViews," RescaleSlope ",RescaleSlope," RescaleIntercept ",RescaleIntercept)
+    print("NumRows ",NumRows, " NumChannels ",NumChannels," NumViews ",NumViews)
     print(type(NumViews)," ",type(NumRows)," ",type(NumChannels),type(NumViews))
 
 
@@ -90,7 +89,14 @@ for data_idx in range(my_range_start,my_range_end):
             proj="proj_%05d.dcm" % (iv+1)
         projname=DIR+proj
         temp = pydicom.dcmread(projname).pixel_array
+        proj_info = pydicom.dcmread(projname)
+        RescaleSlope = proj_info.RescaleSlope
+        RescaleIntercept = proj_info.RescaleIntercept
+
+
         focal1_Proj[:,:,iv] = torch.from_numpy(temp *RescaleSlope +RescaleIntercept)
+
+
 
     print("focal1_Proj max ",torch.max(focal1_Proj)," min ",torch.min(focal1_Proj), " dtype ",focal1_Proj.dtype, " shape ",focal1_Proj.shape)
     focal1_Proj=torch.permute(focal1_Proj, (2, 0, 1))
@@ -133,7 +139,7 @@ for data_idx in range(my_range_start,my_range_end):
 
 
 
-    outputname=StringIO("/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_proj.sino" % data_idx)
+    outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_proj.sino" % data_idx)
 
     with open(outputname.getvalue(),'w') as f:
         f.write('%d ' % NumRows)
@@ -145,7 +151,7 @@ for data_idx in range(my_range_start,my_range_end):
         np.array(focal1_Proj.cpu().numpy(),dtype=np.float32).tofile(f)
 
 
-    outputname=StringIO("/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_weight.wght" % data_idx)
+    outputname=StringIO("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_weight.wght" % data_idx)
 
     with open(outputname.getvalue(),'w') as f:
         f.write('%d ' % NumRows)

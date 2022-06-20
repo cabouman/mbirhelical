@@ -831,7 +831,6 @@ void paraForwardProject(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 	
 
-
 	Nyz = img_info->Ny*img_info->Nz;
 
 	for (jx = 0; jx < img_info->Nx; jx++)

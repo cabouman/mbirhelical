@@ -1,11 +1,11 @@
 #!/bin/sh -l
 # FILENAME: submit.sh
 
-#SBATCH -N 16
+#SBATCH -N 40
 #SBATCH -p batch
-#SBATCH -t 08:00:00
+#SBATCH -t 06:00:00
 #SBATCH -J AAPM_all
-#SBATCH -A gen006
+#SBATCH -A gen150
 
 
 export NUM_NODES=$SLURM_JOB_NUM_NODES
@@ -24,7 +24,7 @@ export DEBUG_MODE=0
 
 module load gcc
 
-for i in {130..133}
+for i in {130..139}
 do
 
 	weight_name="aapm-parameters/dcm_$(printf %03d $i)"
@@ -34,7 +34,7 @@ do
 	info_recon_directory="../data/${weight_name}/info_recon.txt"
 	prior_directory="../data/${weight_name}/prior_qggmrf.txt"
 	ce_directory="../data/${weight_name}/ce.txt"
-	recon_directory="/gpfs/alpine/gen006/scratch/xf9/recon/dcm$(printf %03d $i)/recon"
+	recon_directory="/gpfs/alpine/gen006/proj-shared/xf9/recon/dcm$(printf %03d $i)/recon"
 
 
 	srun -N 4 -n 4 -c ${OMP_NUM_THREADS} --cpu_bind=cores  --exclusive ../src/ct ${forward_model_directory} ${NUM_FOCAL_SPOTS} ${info_recon_directory} ${prior_directory} ${ce_directory} ${recon_directory} 100 ${DUAL_ENERGY} ${DEBUG_MODE} ${NUM_SOURCES} &

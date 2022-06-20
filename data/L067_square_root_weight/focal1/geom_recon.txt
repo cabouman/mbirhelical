@@ -47,10 +47,10 @@ electronic noise variance (0 for noiseless)
 0.3
 
 sinogram file location
-/global/cscratch1/sd/wang1698/L067/sinogram/fulldose_focal1.sino
+/gpfs/alpine/med106/world-shared/xf9/Low_Dose_Challenge/L067/sinogram/fulldose_focal1.sino
 
 weight file location
-/global/cscratch1/sd/wang1698/L067/sinogram/square_root_weight1.wght
+/gpfs/alpine/med106/world-shared/xf9/Low_Dose_Challenge/L067/sinogram/square_root_weight1.wght
 
 dosage file location
 NA
@@ -62,7 +62,7 @@ detector mask location
 NA
 
 view angles list
-/global/cscratch1/sd/wang1698/L067/sinogram/viewAnglesList.txt
+/gpfs/alpine/med106/world-shared/xf9/Low_Dose_Challenge/L067/sinogram/viewAnglesList_f1.txt
 
 source z position list
-/global/cscratch1/sd/wang1698/L067/sinogram/zPositionList.txt
+/gpfs/alpine/med106/world-shared/xf9/Low_Dose_Challenge/L067/sinogram/zPositionList_f1.txt

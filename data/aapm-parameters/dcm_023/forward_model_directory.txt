@@ -1,0 +1,1 @@
+/gpfs/alpine/gen006/proj-shared/xf9/mbirhelical/data/aapm-parameters/dcm_023/detector1/geom_recon.txt

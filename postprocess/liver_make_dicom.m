@@ -28,26 +28,14 @@ for data_idx=134:199
 	disp(reconname)
 
 	recon_myid0 = read_vjk_float(reconname);
-	recon_myid0(recon_myid0<0)=0;
 	recon_myid0 = (recon_myid0-WaterAttenuationCoefficient)*1000/WaterAttenuationCoefficient;
 	recon_myid0=recon_myid0(:,end:-1:1,:);
 	%liver first, then lung
 
 
-	%removes artifacts from negative sinogram entires
-	mask = (recon_myid0>-1000);
-
-	for j=1: size(recon_myid0,2)
-		for k=1:size(recon_myid0,3)
-			if (((j-256)*(j-256)/(230^2)+(k-256)*(k-256)/(230^2))<1)
-				mask(:,j,k)=0;
-			end
-		end
-	end
-	recon_myid0(mask)=-1000;
 
 
-	zname =sprintf('/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_zPositionList.txt',data_idx);
+	zname =sprintf('/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_zPositionList.txt',data_idx);
 
 	fid=fopen(zname); 	
 	% set linenum to the desired line number that you want to import

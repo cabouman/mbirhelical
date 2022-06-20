@@ -62,7 +62,7 @@ for data_idx in range(0,200):
 
     recon_z_start = 0.0
     recon_z_end = 0.0
-    z_file=open("/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_zPositionList.txt" % (data_idx))   
+    z_file=open("/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_zPositionList.txt" % (data_idx))   
     lines_to_read=[500, NumViews-500-1]
     for position, line in enumerate(z_file):
         if position == lines_to_read[0]:
@@ -109,10 +109,10 @@ for data_idx in range(0,200):
         f.write('electronic noise variance (0 for noiseless)\n')
         f.write('%f\n\n' % 0.3)
         f.write('sinogram file location\n')
-        sino_DIR="/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_proj.sino" % (data_idx)        
+        sino_DIR="/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_proj.sino" % (data_idx)        
         f.write(sino_DIR+'\n\n')
         f.write('weight file location\n')
-        wght_DIR="/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_weight.wght" % (data_idx)   
+        wght_DIR="/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_weight.wght" % (data_idx)   
         f.write(wght_DIR+'\n\n')
         f.write('dosage file location\n')
         f.write('NA\n\n')
@@ -121,10 +121,10 @@ for data_idx in range(0,200):
         f.write('detector mask location\n')
         f.write('NA\n\n')
         f.write('view angles list\n')
-        view_DIR="/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_viewAnglesList.txt" % (data_idx)   
+        view_DIR="/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_viewAnglesList.txt" % (data_idx)   
         f.write(view_DIR+'\n\n')
         f.write('source z position list\n')
-        z_DIR="/gpfs/alpine/gen006/scratch/xf9/aapm-preprocess/dcm%03d_zPositionList.txt" % (data_idx)   
+        z_DIR="/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm%03d_zPositionList.txt" % (data_idx)   
         f.write(z_DIR+'\n')
 
 
@@ -146,7 +146,7 @@ for data_idx in range(0,200):
     outputname=StringIO("/gpfs/alpine/gen006/proj-shared/xf9/mbirhelical/data/aapm-parameters/dcm_%03d/forward_model_directory.txt" % data_idx)
 
     with open(outputname.getvalue(),'w') as f:
-        f.write('../data/aapm-parameters/dcm_%03d/detector1/geom_recon.txt\n' % data_idx)
+        f.write('/gpfs/alpine/gen006/proj-shared/xf9/mbirhelical/data/aapm-parameters/dcm_%03d/detector1/geom_recon.txt\n' % data_idx)
 
 
     outputname=StringIO("/gpfs/alpine/gen006/proj-shared/xf9/mbirhelical/data/aapm-parameters/dcm_%03d/info_recon.txt" % data_idx)
@@ -184,14 +184,14 @@ for data_idx in range(0,200):
         f.write('%f\n\n' % z_spacing)
         f.write('radius of the reconstruction mask (mm)\n')
         if data_idx<134:
-            f.write('%d\n\n' % 290)
+            f.write('%d\n\n' % 250)
         else:
             f.write('%d\n\n' % 250)
 
         f.write('initial reconstruction image location\n')
 
-        recon_dir="/gpfs/alpine/gen006/scratch/xf9/recon/dcm%03d/recon" % (data_idx)   
-        #recon_dir="NA"
+        #recon_dir="/gpfs/alpine/gen006/proj-shared/xf9/recon/dcm%03d/recon" % (data_idx)   
+        recon_dir="NA"
 
         f.write(recon_dir+'\n\n')
         f.write('mask file location\n')
@@ -220,4 +220,4 @@ for data_idx in range(0,200):
         if data_idx <134:
             f.write('%f\n' % 0.5)
         else:
-            f.write('%f\n' % 0.3)
+            f.write('%f\n' % 0.08)

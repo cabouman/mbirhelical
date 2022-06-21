@@ -12,8 +12,8 @@
 #define sign(a,b) ((a) > (b) ? (1.0) : (-1.0))		/* sign(a-b) */
 #define abso(a) ((a) > 0 ? (a) : (-1.0*a))
 #define PnP_mode 0
-#define damping_constant 1.0
-#define positive_constraint 0
+#define damping_constant 1
+#define positive_constraint 1
 
 struct ICDInfo
 {

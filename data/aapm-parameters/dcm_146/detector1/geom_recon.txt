@@ -1,0 +1,68 @@
+number of rows
+64
+
+number of channels
+900
+
+number of views
+5000
+
+views per rotation
+1000
+
+src to iso (mm)
+575
+
+src to det (mm)
+1050.001500
+
+un-normalized pitch (det rows/rot)
+35.047500
+
+X-ray source initial z position (mm)
+0.000000
+
+view angle spacing (rad)
+0.0062831853
+
+detector channel angle spacing (rad)
+0.0009523796
+
+detector channel offset (rad)
+0.0016666643
+
+detector row width (mm)
+1
+
+detector row offset (mm)
+0
+
+diameter of field of view (mm)
+500
+
+initial photon counts (0 for noiseless)
+2.250000
+
+electronic noise variance (0 for noiseless)
+0.300000
+
+sinogram file location
+/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm146_proj.sino
+
+weight file location
+/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm146_weight.wght
+
+dosage file location
+NA
+
+offset file location
+NA
+
+detector mask location
+NA
+
+view angles list
+/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm146_viewAnglesList.txt
+
+source z position list
+/gpfs/alpine/med106/world-shared/xf9/aapm-preprocess/dcm146_zPositionList.txt

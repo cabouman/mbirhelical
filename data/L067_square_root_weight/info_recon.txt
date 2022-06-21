@@ -29,7 +29,7 @@ radius of the reconstruction mask (mm)
 353
 
 initial reconstruction image location
-/global/cscratch1/sd/wang1698/L067/square_root_weight/recon
+NA
 
 mask file location
 NA

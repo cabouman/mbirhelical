@@ -1,1 +1,0 @@
-../data/AAPM-2022/dcm_134/detector1/geom_recon.txt

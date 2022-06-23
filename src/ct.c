@@ -9,6 +9,7 @@
 #include "prepro.h"
 #include "io.h"
 #include "mpi.h"
+#include "tensorflow/c/c_api.h"
 
 void error(char *name)
 {
@@ -185,47 +186,25 @@ int main(int argc, char *argv[])
 	MPI_Comm DE_comm;
 	int DE_numprocs=0;
 	
-	if(DE_mode==4){
-        // single focal spot
-		DE_bin = myid/3; // 3 focal spots in a group
-		MPI_Comm_split(MPI_COMM_WORLD, DE_bin, myid, &DE_comm); 
-		MPI_Comm_size(DE_comm, &DE_numprocs);
-		MPI_Comm_rank(DE_comm, &DE_id);
-	
-	}
-	else if(DE_mode==3){
-        // single focal spot
-		DE_bin = myid; // independent recon
-		MPI_Comm_split(MPI_COMM_WORLD, DE_bin, myid, &DE_comm); 
-		MPI_Comm_size(DE_comm, &DE_numprocs);
-		MPI_Comm_rank(DE_comm, &DE_id);
-	
-	}
-
-	else if(DE_mode==2){
-        // single focal spot
-		DE_bin = myid % 2; // two sources with focal spot position 1 are in the same group
-		MPI_Comm_split(MPI_COMM_WORLD, DE_bin, myid, &DE_comm); 
-		MPI_Comm_size(DE_comm, &DE_numprocs);
-		MPI_Comm_rank(DE_comm, &DE_id);
-	
-	}
-
-	else if(DE_mode==1){
+	if(DE_mode==1){
         // dual energy
-		DE_bin = myid / 2; // focal spot 1 and 2 are in the same group
+		DE_bin = myid / 2; // Same energy but different focal spots are in the same group
 		MPI_Comm_split(MPI_COMM_WORLD, DE_bin, myid, &DE_comm); 
 		MPI_Comm_size(DE_comm, &DE_numprocs);
 		MPI_Comm_rank(DE_comm, &DE_id);
-	
 	}
-	else{
+	else if(DE_model==0){   //all focal spots are in the same group, assuming that they all have the same energy
 	// normal recon DE_mode=0
 	//
 		DE_bin = myid / numprocs; 
 		MPI_Comm_split(MPI_COMM_WORLD, DE_bin, myid, &DE_comm); 
 		MPI_Comm_size(DE_comm, &DE_numprocs);
 		MPI_Comm_rank(DE_comm, &DE_id);
+
+	}
+	else{
+		fprintf(stderr, "ERROR in dual_energy flag setting. Needs to be either 0 or 1\n");
+		exit(1);
 
 	}
 

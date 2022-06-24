@@ -217,6 +217,11 @@ void TwoGMinusIOperator_PnP(
 				    struct Image *Vmean,
         			    struct PriorInfo *prior_info, char **reconMask, float SigmaLambda, int *order,int myid,int NUM_PROCS,int it,int DE_id,int DE_numprocs,MPI_Comm *DE_comm,int debug_mode)
 {
+
+	/* In this function, if PnP=0, the consensus equilibrium method computes the mean of V, and then compute TildeV as 2 times mean - V */
+	/* if PnP=1, the plug and play framework performs proximal map prior computation on a single node, and then broadcast the denoised result, consensus_X, to all nodes.
+	 * Then compute TildeV as 2 times consensus_X -V */
+
     /* Merge V and Denoise. Store result in consensus_X */
     MergeAndDenoise(V, Vmean, consensus_X, prior_info, reconMask, SigmaLambda, order,myid,NUM_PROCS,it,DE_id,DE_numprocs,DE_comm,debug_mode);             
 
@@ -235,21 +240,21 @@ void StackAndReflect(
 
 
     /* Stack Z*/
-    if(PnP_mode){
+	if(PnP_mode){
 
-    	for(i=0;i<V->img_info.Nx * V->img_info.Ny * V->img_info.Nz;i++)
-    	{
-        	TildeV->img[i] = 2*consensus_X->img[i]-V->img[i];
-    	}
+    		for(i=0;i<V->img_info.Nx * V->img_info.Ny * V->img_info.Nz;i++)
+    		{
+        		TildeV->img[i] = 2*consensus_X->img[i]-V->img[i];
+    		}
 
-   }
-   else{
-     	for(i=0;i<V->img_info.Nx * V->img_info.Ny * V->img_info.Nz;i++)
-    	{
-        	TildeV->img[i] = 2*Vmean->img[i]-V->img[i];
-    	}
+   	}
+	else{
+     		for(i=0;i<V->img_info.Nx * V->img_info.Ny * V->img_info.Nz;i++)
+    		{
+        		TildeV->img[i] = 2*Vmean->img[i]-V->img[i];
+    		}
  	
-   }
+   	}
 /*
 	
     ENTRY *avg_TildeV = (ENTRY *)get_spc(V->img_info.Nx * V->img_info.Ny * V->img_info.Nz, sizeof(ENTRY));
@@ -875,34 +880,33 @@ float ICDStep_Likelihood(
 		for (r = 0; r < col_xyz->n_index; r++)
 		{
 			d = D[col_xyz->index[r]];  
-			/* square weighting if suspect metal is involved */
-			/* my experiments here !!!! */
-			
-			//if(consensus_value > 0.0768 && icd_info->v > 0.0768){   /*4000 HU */
-			//	d = pow(d,1.2);
-			//}
-
 
 
 			icd_info->th1 -= (col_xyz->val[r]*d*e[col_xyz->index[r]]);
 			icd_info->th2 += (col_xyz->val[r]*d*col_xyz->val[r]);
-/*
-			dsum += d;
-*/
 		}
 	}
 
 	if(PnP_mode){	
+
+	/* if PnP_mode ==1, the algorithm uses plug and play deep learning prior model.
+	 * adding the first derivative and second derivative for the penalizing term to th1 and th2 without computing the prior*/
+
 		icd_info->th1 += (icd_info->v-TildeV_value)/(SigmaLambda*SigmaLambda);
 		icd_info->th2 += 1/(SigmaLambda *SigmaLambda);
 	}
-	else{
+	else{    
+	/* if PnP_mode ==0, the algorithm is in the Consensus Equilibrium mode.
+	 * Continue and modify th1 and th2 based on the QGGMRF statistsical prior model
+	 */
 		float oldTheta1=icd_info->th1;
 		float oldTheta2=icd_info->th2;
 
 		QGGMRF3D_UpdateICDParams(icd_info,prior_info);
 		icd_info->th1 = oldTheta1 + 1.0/DE_numprocs * (icd_info->th1 - oldTheta1);
 		icd_info->th2 = oldTheta2 + 1.0/DE_numprocs * (icd_info->th2 - oldTheta2);
+
+		/* adding the first derivative and second derivative for the penalizing term to th1 and th2 */
 
 		icd_info->th1 += (icd_info->v-TildeV_value)/(SigmaLambda*SigmaLambda);
 		icd_info->th2 += 1/(SigmaLambda *SigmaLambda);
@@ -961,8 +965,6 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 	int n;  
 
 
-	//fprintf(stdout,"before reach createACol\n");
-	//fflush(stdout);
 
 	createACol(&col_xyz, COL_LEN);		/* TODO COL_LEN hard-coded */
 	//createViewXYInfo(&view_xy_info, geom_info);

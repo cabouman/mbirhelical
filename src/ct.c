@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
 		MPI_Comm_size(DE_comm, &DE_numprocs);
 		MPI_Comm_rank(DE_comm, &DE_id);
 	}
-	else if(DE_model==0){   //all focal spots are in the same group, assuming that they all have the same energy
+	else if(DE_mode==0){   //all focal spots are in the same group, assuming that they all have the same energy
 	// normal recon DE_mode=0
 	//
 		DE_bin = myid / numprocs; 

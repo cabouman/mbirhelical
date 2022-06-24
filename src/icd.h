@@ -11,7 +11,7 @@
 #define TOL	10e-9		/* half-interval seaerch equation solver tolerance */
 #define sign(a,b) ((a) > (b) ? (1.0) : (-1.0))		/* sign(a-b) */
 #define abso(a) ((a) > 0 ? (a) : (-1.0*a))
-#define PnP_mode 0
+#define PnP_mode 1
 #define damping_constant 1
 #define positive_constraint 1
 

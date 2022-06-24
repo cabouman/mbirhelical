@@ -6,6 +6,7 @@
 #include "data.h"
 #include "prepro.h"	/* readPrior */
 #include "io.h"
+#include "icd.h"
 
 /* byte-order possibilities */
 /*
@@ -743,21 +744,30 @@ void readPrior(char *fname, struct PriorInfo *prior_info)
 		fprintf(stderr, "ERROR in readPrior: can't open file %s\n", fname);
 		exit(1);
 	}
+	if (PnP_mode==0){
+		fgets(tag, 100, fp);
+		fscanf(fp, "%f\n\n", &prior_info->q);
+		fgets(tag, 100, fp);
+		fscanf(fp, "%f\n\n", &prior_info->p);
+		fgets(tag, 100, fp);
+		fscanf(fp, "%f\n\n", &prior_info->T);
+		fgets(tag, 100, fp);
+		fscanf(fp, "%f\n", &prior_info->SigmaX);
 
-	fgets(tag, 100, fp);
-	fscanf(fp, "%f\n\n", &prior_info->q);
-	fgets(tag, 100, fp);
-	fscanf(fp, "%f\n\n", &prior_info->p);
-	fgets(tag, 100, fp);
-	fscanf(fp, "%f\n\n", &prior_info->T);
-	fgets(tag, 100, fp);
-	fscanf(fp, "%f\n", &prior_info->SigmaX);
+		fprintf(stdout, "\nPRIOR PARAMETERS:\n");
+		fprintf(stdout, "q = %f\n", prior_info->q);
+		fprintf(stdout, "p = %f\n", prior_info->p);
+		fprintf(stdout, "T = %f \n", prior_info->T);
+		fprintf(stdout, "Sigma = %f (-1^mm)\n", prior_info->SigmaX);
+	}
+	else{
+		fgets(tag, 100, fp);
+		fscanf(fp, "%s\n\n", prior_info->DL_File);
+		
+		fprintf(stdout, "\nPRIOR PARAMETERS:\n");
+		fprintf(stdout, "DL file path = %s\n", prior_info->DL_File);
 
-	fprintf(stdout, "\nPRIOR PARAMETERS:\n");
-	fprintf(stdout, "q = %f\n", prior_info->q);
-	fprintf(stdout, "p = %f\n", prior_info->p);
-	fprintf(stdout, "T = %f \n", prior_info->T);
-	fprintf(stdout, "Sigma = %f (-1^mm)\n", prior_info->SigmaX);
+	}
 
 	fclose(fp);
 }

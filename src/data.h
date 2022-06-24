@@ -153,6 +153,8 @@ struct PriorInfo
 	float p;		/* q-GMMRF p */
 	float T;		/* q-GMMRF T */
 	float SigmaX;		/* q-GMMRF SigmaX */
+	char DL_File[100];
+
 };
 
 struct CEInfo

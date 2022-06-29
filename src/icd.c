@@ -333,7 +333,7 @@ int DE_numprocs,MPI_Comm *DE_comm, int debug_mode)
 }
 
 
-
+void NoOpDeallocator(void* data, size_t a, void* b) {}
 
 void SolveProximalMap_Prior(struct Image *Image, 
                             char  ** reconMask, 
@@ -345,30 +345,134 @@ void SolveProximalMap_Prior(struct Image *Image,
   
 	Nxy =Image->img_info.Nx * Image->img_info.Ny; /* image size */
 
-	TF_Graph* Graph = TF_NewGraph();
-	TF_Status* Status = TF_NewStatus();
+  TF_Graph* Graph = TF_NewGraph();
+  TF_Status* Status = TF_NewStatus();
 
-	TF_SessionOptions* SessionOpts = TF_NewSessionOptions();
-	TF_Buffer* RunOpts = NULL;
+  TF_SessionOptions* SessionOpts = TF_NewSessionOptions();
+  TF_Buffer* RunOpts = NULL;
 
-  	// Get path to model directory from input
-  	const char* saved_model_dir = prior_info->DL_File;
-  	printf("Model: %s\n", saved_model_dir);
-  	// model serve tag
-  	const char* tags = "serve";
-  	int ntags = 1;
+  // Get path to model directory from input
+  const char* saved_model_dir = prior_info->DL_File;
+  printf("Model: %s\n", saved_model_dir);
+  // model serve tag
+  const char* tags = "serve";
+  int ntags = 1;
 
-  	TF_Session* Session = TF_LoadSessionFromSavedModel(SessionOpts, RunOpts, saved_model_dir, &tags, ntags, Graph, NULL, Status);
+  TF_Session* Session = TF_LoadSessionFromSavedModel(SessionOpts, RunOpts, saved_model_dir, &tags, ntags, Graph, NULL, Status);
 
-  	if(TF_GetCode(Status) == TF_OK)
-  	{
-    		printf("TF_LoadSessionFromSavedModel OK\n");
-  	}
-  	else
-  	{
-    		printf("%s",TF_Message(Status));
-  	} 
-    
+  if(TF_GetCode(Status) == TF_OK)
+  {
+    printf("TF_LoadSessionFromSavedModel OK\n");
+  }
+  else
+  {
+    printf("%s",TF_Message(Status));
+  } 
+
+  //****** Get input tensor
+  int NumInputs = 1;
+  TF_Output* Input = (TF_Output*)malloc(sizeof(TF_Output) * NumInputs);
+
+  TF_Output t0 = {TF_GraphOperationByName(Graph, "serving_default_input_1"), 0};
+  if(t0.oper == NULL)
+    printf("ERROR: Failed TF_GraphOperationByName serving_default_input_1\n");
+  else
+    printf("TF_GraphOperationByName serving_default_input_1 is OK\n");
+
+  Input[0] = t0;
+
+  //********* Get Output tensor
+  int NumOutputs = 1;
+  TF_Output* Output = (TF_Output*)malloc(sizeof(TF_Output) * NumOutputs);
+
+  TF_Output t2 = {TF_GraphOperationByName(Graph, "StatefulPartitionedCall"), 0};
+  if(t2.oper == NULL)
+    printf("ERROR: Failed TF_GraphOperationByName StatefulPartitionedCall\n");
+  else	
+    printf("TF_GraphOperationByName StatefulPartitionedCall is OK\n");
+
+  Output[0] = t2;
+
+  //********* Allocate data for inputs & outputs
+  TF_Tensor** InputValues = (TF_Tensor**)malloc(sizeof(TF_Tensor*)*NumInputs);
+  TF_Tensor** OutputValues = (TF_Tensor**)malloc(sizeof(TF_Tensor*)*NumOutputs);
+
+  // set the dimensions of the images here
+  int ndims      = 4;  // TF requires an additional dim for batch size: 3+1 (nx,ny,nslice,nbatch)
+  int model_ipsize_x   = Image->img_info.Nx;
+  int model_ipsize_y   = Image->img_info.Ny;
+  int model_ipsize_z   = 5;
+  int batch_size = 1;  // lets just denoise 1 slice
+
+  // allocate TF arrays
+  int64_t dims[] = {batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z};
+  float   data[batch_size][model_ipsize_x][model_ipsize_y][model_ipsize_z];
+  int ndata = sizeof(float)*batch_size*model_ipsize_x*model_ipsize_y*model_ipsize_z; // number of bytes not number of elements
+
+  // curate input data for given image slice
+  // Image->img[nx][ny][slice]
+  // NOTE: for batch_size = 1
+  // for (int k=0; k<Image->img_info.Nz; k++) {
+  // if for BCs
+  int k = 100;     // this is the slice we are de-noising
+  for (int i=0; i<model_ipsize_x; i++) {
+    for(int j=0; j<model_ipsize_y; j++) {
+      for(int kk=0; kk<model_ipsize_z; kk++) {
+        data[0][i][j][kk] = Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + k+kk-2];
+      }
+    }
+  }
+
+  TF_Tensor* int_tensor = TF_NewTensor(TF_FLOAT, dims, ndims, data, ndata, &NoOpDeallocator, 0);
+  if (int_tensor != NULL)
+  {
+    printf("TF_NewTensor is OK\n");
+  }
+  else
+    printf("ERROR: Failed TF_NewTensor\n");
+
+  InputValues[0] = int_tensor;
+
+  // ================================
+  // Run forward pass of model
+  // ================================
+  TF_SessionRun(Session, NULL, Input, InputValues, NumInputs, Output, OutputValues, NumOutputs, NULL, 0,NULL , Status);
+
+  if(TF_GetCode(Status) == TF_OK)
+  {
+    printf("Froward pass is OK\n");
+  }
+  else
+  {
+    printf("%s",TF_Message(Status));
+  }
+
+  // ================================
+  // Write outputs
+  // ================================
+  void* buff = TF_TensorData(OutputValues[0]);  // pointer to model output
+  float* outvalues = (float*)buff;  // which is the extracted noise
+
+  int counter = 0;
+  for(int i=0; i<model_ipsize_x; i++) {
+    for (int j=0; j<model_ipsize_y; j++) {
+      // subtract noise (model output) from original image
+      Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] -= outvalues[counter]; 
+      counter++;
+    }
+  }
+
+  // }   // for loop over Image->Nz
+  // Free memory
+  TF_DeleteGraph(Graph);
+  TF_DeleteSession(Session, Status);
+  TF_DeleteSessionOptions(SessionOpts);
+  TF_DeleteStatus(Status);
+
+
+
+
+
     //	#pragma omp parallel
     //{
     //	paraICD_Prior(&Image->img_info, prior_info, reconMask, Image->img, ProximalMapInput, order, SigmaLambda,it,Image);    

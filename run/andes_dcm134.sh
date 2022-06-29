@@ -2,7 +2,7 @@
 # FILENAME: submit.sh
 
 #SBATCH -N 4
-#SBATCH -t 04:00:00
+#SBATCH -t 00:30:00
 #SBATCH -J AAPM_134
 #SBATCH -A gen150
 #SBATCH -p batch
@@ -25,13 +25,12 @@ export DUAL_ENERGY=0
 export DEBUG_MODE=0
 
 
-
 weight_name="aapm-parameters/dcm_134"
 echo "${weight_name}"
 
 forward_model_directory="../data/${weight_name}/forward_model_directory.txt"
 info_recon_directory="../data/${weight_name}/info_recon.txt"
-prior_directory="../data/${weight_name}/prior_qggmrf.txt"
+prior_directory="../data/${weight_name}/prior_dl.txt"
 ce_directory="../data/${weight_name}/ce.txt"
 recon_directory="/gpfs/alpine/gen006/proj-shared/xf9/recon/dcm134/recon"
 

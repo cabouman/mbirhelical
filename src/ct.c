@@ -211,7 +211,8 @@ int main(int argc, char *argv[])
 
 	/* ICD algorithm and use q-GGMRF prior, will write out the reconstructed image */
         MPI_Barrier(MPI_COMM_WORLD);
-	
+
+
 	ICDReconstruct(&image, &V, &consensus_X, &TildeV, &VPrevious, &Vmean, &sinogram, recon_mask, &prior_info, &ce_info, argv[6], Nit, myid,numprocs,DE_id,DE_numprocs,&DE_comm, DE_mode, debug_mode,argv[3]);
 
 	MPI_Barrier(MPI_COMM_WORLD);	

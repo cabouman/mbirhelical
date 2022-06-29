@@ -2,7 +2,7 @@
 
 for i in {0..199}
 do
-	recon_directory="/global/cscratch1/sd/wang1698/AAPM_2022/recon/dcm$(printf %03d $i)/"
+	recon_directory="/gpfs/alpine/gen006/scratch/xf9/dicom/dcm$(printf %03d $i)/"
 	mkdir ${recon_directory}
 
 done

@@ -17,6 +17,8 @@
 #include "quicksort.h" /* sjk: contains quickselect()  */
 #include "icd.h"
 #include "mpi.h"
+#include "tensorflow/c/c_api.h"
+
 void fillNeighbors(float *neighbors, int jx, int jy, int jz, ENTRY *X, struct ImgInfo *img_info)
 {
 	int plusx, minusx, plusy, minusy, plusz, minusz;
@@ -338,33 +340,44 @@ void SolveProximalMap_Prior(struct Image *Image,
                             struct Image *ProximalMapInput, 
                             float  SigmaLambda, struct PriorInfo *prior_info, int *order,int it,int myid)
 {
-    int j, Nxy;
-    float cost;
+	int j, Nxy;
+	float cost;
   
-    Nxy =Image->img_info.Nx * Image->img_info.Ny; /* image size */
+	Nxy =Image->img_info.Nx * Image->img_info.Ny; /* image size */
 
-    /****************************************/
-    /* Iteration and convergence Parameters */
-    /****************************************/
+	TF_Graph* Graph = TF_NewGraph();
+	TF_Status* Status = TF_NewStatus();
 
-    /****************************************/
-    /* START iterative RECONSTRUCTION       */
-    /****************************************/
+	TF_SessionOptions* SessionOpts = TF_NewSessionOptions();
+	TF_Buffer* RunOpts = NULL;
+
+  	// Get path to model directory from input
+  	const char* saved_model_dir = prior_info->DL_File;
+  	printf("Model: %s\n", saved_model_dir);
+  	// model serve tag
+  	const char* tags = "serve";
+  	int ntags = 1;
+
+  	TF_Session* Session = TF_LoadSessionFromSavedModel(SessionOpts, RunOpts, saved_model_dir, &tags, ntags, Graph, NULL, Status);
+
+  	if(TF_GetCode(Status) == TF_OK)
+  	{
+    		printf("TF_LoadSessionFromSavedModel OK\n");
+  	}
+  	else
+  	{
+    		printf("%s",TF_Message(Status));
+  	} 
     
-        
-    /* Random update provides the fastest algorithmic convergence */
-    /* Update all pixels within ROI once */
-    
-	#pragma omp parallel
-    {
-    	paraICD_Prior(&Image->img_info, prior_info, reconMask, Image->img, ProximalMapInput, order, SigmaLambda,it,Image);    
-    }
+    //	#pragma omp parallel
+    //{
+    //	paraICD_Prior(&Image->img_info, prior_info, reconMask, Image->img, ProximalMapInput, order, SigmaLambda,it,Image);    
+    //}
 
     //cost = ProximalMapCostFunction3D_Prior(Image,prior_info,myid);
         
     //fprintf(stdout, "nlogprior %f \n", cost);
     //fflush(stdout);        
-    /********** END - Iterative RECONSTRUCTION ************/
 }
 
 
@@ -1294,15 +1307,17 @@ void ICDReconstruct(
 
 /* set estimation type */
 	
-	if (prior_info->q == 2.0 && prior_info->p < 2.0 && prior_info->p >= 1.0)
-	{
-		prior_info->est = QGGMRF;
-		fprintf(stdout, "\nThis is MAP estimation using q-GGMRF!\n");
-	}
-	else
-	{
-		fprintf(stdout, "\nSoftware does not support the prior parameters provided!\n");
-		exit(1);
+	if (PnP_mode==0){	
+		if (prior_info->q == 2.0 && prior_info->p < 2.0 && prior_info->p >= 1.0)
+		{
+			prior_info->est = QGGMRF;
+			fprintf(stdout, "\nThis is MAP estimation using q-GGMRF!\n");
+		}
+		else
+		{
+			fprintf(stdout, "\nSoftware does not support the prior parameters provided!\n");
+			exit(1);
+		}
 	}
 
 	if (sinogram->geom_info.lambda0 == 0.0)

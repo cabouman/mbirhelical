@@ -412,57 +412,81 @@ void SolveProximalMap_Prior(struct Image *Image,
   // curate input data for given image slice
   // Image->img[nx][ny][slice]
   // NOTE: for batch_size = 1
-  // for (int k=0; k<Image->img_info.Nz; k++) {
-  // if for BCs
-  int k = 100;     // this is the slice we are de-noising
-  for (int i=0; i<model_ipsize_x; i++) {
-    for(int j=0; j<model_ipsize_y; j++) {
-      for(int kk=0; kk<model_ipsize_z; kk++) {
-        data[0][i][j][kk] = Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + k+kk-2];
+  // int k = 100;     // this is the slice we are de-noising
+  for (int k=0; k < Image->img_info.Nz; k++) {
+    // treat neighbors of boundary slices
+    int kk_vals[] = {-2, -1, 0, 1, 2};
+    if ( k <= 1  &&  k >= Image->img_info.Nz-2 ) {
+      if (        k == 0 ) {
+        kk_vals[1] = Image->img_info.Nz-1;   // so that when k=0, k-1 = Nz-1
+        kk_vals[0] = Image->img_info.Nz-2;   // so that when k=0, k-2 = Nz-2
+      } else if ( k == 1 ) {
+        kk_vals[0] = Image->img_info.Nz-2;   // so that when k=1, k-2 = Nz-1
+      }
+      else if (   k == Image->img_info.Nz-1 ) {
+        kk_vals[3] = 1 - Image->img_info.Nz; // so that when k=Nz-1, k+1 = 0
+        kk_vals[4] = 2 - Image->img_info.Nz; // so that when k=Nz-1, k+2 = 1
+      } else if ( k == Image->img_info.Nz-2 ) {
+        kk_vals[4] = 2 - Image->img_info.Nz; // so that when k=Nz-2, k+2 = 0
+      }
+
+    }
+    for (int i=0; i < model_ipsize_x   ; i++) {
+      for(int j=0; j < model_ipsize_y   ; j++) {
+        for(int kk=0; kk < model_ipsize_z; kk++) {
+          int slice_val = k + kk_vals[kk];
+          // // treat neighbors of boundary slices
+          // int slice_val = k+kk-2;
+          // if (slice_val == -1) { slice_val = 1;}
+          // else if (slice_val == -2) { slice_val = 2;}
+          // else if (slice_val == Image->img_info.Nz) { slice_val = Image->img_info.Nz-1;}
+          // else if (slice_val == Image->img_info.Nz+1) { slice_val = Image->img_info.Nz-2;}
+          data[0][i][j][kk] = Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + slice_val];  // print & visualize
+          // test sheplogan model with mbir outputs (vlk files)
+        }
       }
     }
-  }
 
-  TF_Tensor* int_tensor = TF_NewTensor(TF_FLOAT, dims, ndims, data, ndata, &NoOpDeallocator, 0);
-  if (int_tensor != NULL)
-  {
-    printf("TF_NewTensor is OK\n");
-  }
-  else
-    printf("ERROR: Failed TF_NewTensor\n");
-
-  InputValues[0] = int_tensor;
-
-  // ================================
-  // Run forward pass of model
-  // ================================
-  TF_SessionRun(Session, NULL, Input, InputValues, NumInputs, Output, OutputValues, NumOutputs, NULL, 0,NULL , Status);
-
-  if(TF_GetCode(Status) == TF_OK)
-  {
-    printf("Froward pass is OK\n");
-  }
-  else
-  {
-    printf("%s",TF_Message(Status));
-  }
-
-  // ================================
-  // Write outputs
-  // ================================
-  void* buff = TF_TensorData(OutputValues[0]);  // pointer to model output
-  float* outvalues = (float*)buff;  // which is the extracted noise
-
-  int counter = 0;
-  for(int i=0; i<model_ipsize_x; i++) {
-    for (int j=0; j<model_ipsize_y; j++) {
-      // subtract noise (model output) from original image
-      Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] -= outvalues[counter]; 
-      counter++;
+    TF_Tensor* int_tensor = TF_NewTensor(TF_FLOAT, dims, ndims, data, ndata, &NoOpDeallocator, 0);
+    if (int_tensor != NULL)
+    {
+      printf("TF_NewTensor is OK\n");
     }
-  }
+    else
+      printf("ERROR: Failed TF_NewTensor\n");
 
-  // }   // for loop over Image->Nz
+    InputValues[0] = int_tensor;
+
+    // ================================
+    // Run forward pass of model
+    // ================================
+    TF_SessionRun(Session, NULL, Input, InputValues, NumInputs, Output, OutputValues, NumOutputs, NULL, 0,NULL , Status);
+
+    if(TF_GetCode(Status) == TF_OK)
+    {
+      printf("Froward pass is OK\n");
+    }
+    else
+    {
+      printf("%s",TF_Message(Status));
+    }
+
+    // ================================
+    // Write outputs
+    // ================================
+    void* buff = TF_TensorData(OutputValues[0]);  // pointer to model output
+    float* outvalues = (float*)buff;  // which is the extracted noise
+
+    int counter = 0;
+    for(int i=0; i<model_ipsize_x; i++) {
+      for (int j=0; j<model_ipsize_y; j++) {
+        // subtract noise (model output) from original image
+        Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] -= outvalues[counter]; // print & visialuze 
+        counter++;
+      }
+    }
+
+  }   // for loop over Image->Nz
   // Free memory
   TF_DeleteGraph(Graph);
   TF_DeleteSession(Session, Status);

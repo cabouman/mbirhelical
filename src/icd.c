@@ -353,7 +353,7 @@ void SolveProximalMap_Prior(struct Image *Image,
 
   // Get path to model directory from input
   const char* saved_model_dir = prior_info->DL_File;
-  printf("Model: %s\n", saved_model_dir);
+  fprintf(stdout,"Model: %s\n", saved_model_dir);
   // model serve tag
   const char* tags = "serve";
   int ntags = 1;
@@ -362,11 +362,11 @@ void SolveProximalMap_Prior(struct Image *Image,
 
   if(TF_GetCode(Status) == TF_OK)
   {
-    printf("TF_LoadSessionFromSavedModel OK\n");
+    fprintf(stdout,"TF_LoadSessionFromSavedModel OK\n");
   }
   else
   {
-    printf("%s",TF_Message(Status));
+    fprintf(stdout,"%s",TF_Message(Status));
   } 
 
   //****** Get input tensor
@@ -402,12 +402,15 @@ void SolveProximalMap_Prior(struct Image *Image,
   int model_ipsize_x   = Image->img_info.Nx;
   int model_ipsize_y   = Image->img_info.Ny;
   int model_ipsize_z   = 5;
-  int batch_size = 1;  // lets just denoise 1 slice
+  int batch_size = 1;  
 
   // allocate TF arrays
   int64_t dims[] = {batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z};
-  float   data[batch_size][model_ipsize_x][model_ipsize_y][model_ipsize_z];
-  int ndata = sizeof(float)*batch_size*model_ipsize_x*model_ipsize_y*model_ipsize_z; // number of bytes not number of elements
+
+  fprintf(stdout,"batch_size %d,model_ipsize_x %d, model_ipsize_y %d, model_ipsize_z %d \n",batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z);
+
+  ENTRY   data[batch_size][model_ipsize_x][model_ipsize_y][model_ipsize_z];
+  int ndata = sizeof(ENTRY)*batch_size*model_ipsize_x*model_ipsize_y*model_ipsize_z; // number of bytes not number of elements
 
   // curate input data for given image slice
   // Image->img[nx][ny][slice]
@@ -418,7 +421,7 @@ void SolveProximalMap_Prior(struct Image *Image,
   for (int i=0; i<model_ipsize_x; i++) {
     for(int j=0; j<model_ipsize_y; j++) {
       for(int kk=0; kk<model_ipsize_z; kk++) {
-        data[0][i][j][kk] = Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + k+kk-2];
+        data[0][i][j][kk] = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + k+kk-2];
       }
     }
   }
@@ -440,27 +443,81 @@ void SolveProximalMap_Prior(struct Image *Image,
 
   if(TF_GetCode(Status) == TF_OK)
   {
-    printf("Froward pass is OK\n");
+    fprintf(stdout,"Froward pass is OK\n");
   }
   else
   {
-    printf("%s",TF_Message(Status));
+    fprintf(stdout,"%s",TF_Message(Status));
   }
 
   // ================================
   // Write outputs
   // ================================
-  void* buff = TF_TensorData(OutputValues[0]);  // pointer to model output
-  float* outvalues = (float*)buff;  // which is the extracted noise
+  void* buff = TF_TensorData(OutputValues[0]);  // Return a pointer to model output
+  ENTRY* outvalues = (ENTRY*)buff;  // which is the extracted noise
+
+
+
+
+
+
+
+
+
+
+
+
+	ENTRY* temp = (ENTRY *)  get_spc((Image->img_info.Ny)*(Image->img_info.Nx), sizeof(ENTRY));
+  for(int i=0; i<model_ipsize_x; i++) {
+    for (int j=0; j<model_ipsize_y; j++) {
+      // subtract noise (model output) from original image
+      temp[i*Image->img_info.Ny+j]=ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k]; 
+    }
+  }
+  if(myid==0){
+	  char errorFname[200];
+	  sprintf(errorFname,"/gpfs/alpine/gen006/proj-shared/xf9/recon/dcm134/temp_%d",it);		    	  
+    writeSinogram_float(errorFname, (ENTRY *) temp, Image->img_info.Nx, Image->img_info.Ny, 1);
+  }
+  free(temp);
+
+
+
+
+
+
+
+
+
+
+
+
 
   int counter = 0;
   for(int i=0; i<model_ipsize_x; i++) {
     for (int j=0; j<model_ipsize_y; j++) {
       // subtract noise (model output) from original image
-      Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] -= outvalues[counter]; 
+      ENTRY pixel = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k]-outvalues[counter]; 
+      /* clip */
+      if(positive_constraint ==1){
+        Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] = ((pixel < 0.0) ? 0.0 : pixel);  /* sjk */
+      }
+      else{
+        Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] = pixel;
+      }
+
       counter++;
     }
   }
+
+
+  if(myid==0){
+	  char errorFname[200];
+	  sprintf(errorFname,"/gpfs/alpine/gen006/proj-shared/xf9/recon/dcm134/outvalues_%d",it);		    	  
+    writeSinogram_float(errorFname, (ENTRY *) outvalues, Image->img_info.Nx, Image->img_info.Ny, 1);
+  }
+
+
 
   // }   // for loop over Image->Nz
   // Free memory
@@ -468,7 +525,10 @@ void SolveProximalMap_Prior(struct Image *Image,
   TF_DeleteSession(Session, Status);
   TF_DeleteSessionOptions(SessionOpts);
   TF_DeleteStatus(Status);
-
+  free(Input);
+  free(Output);
+  free(InputValues);
+  free(OutputValues);
 
 
 

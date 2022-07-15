@@ -2,13 +2,21 @@
 # FILENAME: submit.sh
 
 #SBATCH -N 4
-#SBATCH -t 00:30:00
+#SBATCH -t 03:00:00
 #SBATCH -J AAPM_134
 #SBATCH -A gen150
 #SBATCH -p batch
 
 
 module load gcc
+
+
+export TF_DIR=/gpfs/alpine/proj-shared/gen006/muraligm/software/tensorflow_2_8_0_cpp
+export TF_INCLUDE_DIR=$TF_DIR/include
+export TF_LIBRARY_DIR=$TF_DIR/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TF_LIBRARY_DIR
+
+
 
 export NUM_NODES=$SLURM_JOB_NUM_NODES
 

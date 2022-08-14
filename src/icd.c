@@ -474,7 +474,7 @@ void SolveProximalMap_Prior(struct Image *Image,
 
 
 	    	// subtract noise (model output) from original image and then clip it for non-negativity
-
+    		ENTRY* outvalues = (ENTRY*) TF_TensorData(OutputValues[0]);  // which is the extracted noise
 	    	int counter = 0;
 	    	for(int i=0; i<model_ipsize_x; i++) {
 	      		for (int j=0; j<model_ipsize_y; j++) {

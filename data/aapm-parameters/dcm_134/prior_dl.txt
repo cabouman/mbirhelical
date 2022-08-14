@@ -1,3 +1,2 @@
 Directory path for trained deep learning denoiser:
-/gpfs/alpine/gen006/proj-shared/irl1/aict_tfkeras/AICT_checkpoint_dir/horovod_4node_chckpt/ckpt-090
-
+/gpfs/alpine/gen006/proj-shared/irl1/aict_tfkeras/AICT_checkpoint_dir/nine_node_ckpt1/ckpt-165

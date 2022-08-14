@@ -345,62 +345,62 @@ void SolveProximalMap_Prior(struct Image *Image,
   
 	Nxy =Image->img_info.Nx * Image->img_info.Ny; /* image size */
 
-  TF_Graph* Graph = TF_NewGraph();
-  TF_Status* Status = TF_NewStatus();
+  	TF_Graph* Graph = TF_NewGraph();
+	TF_Status* Status = TF_NewStatus();
 
-  TF_SessionOptions* SessionOpts = TF_NewSessionOptions();
-  TF_Buffer* RunOpts = NULL;
+  	TF_SessionOptions* SessionOpts = TF_NewSessionOptions();
+  	TF_Buffer* RunOpts = NULL;
 
-  // Get path to model directory from input
-  const char* saved_model_dir = prior_info->DL_File;
-  fprintf(stdout,"Model: %s\n", saved_model_dir);
-  // model serve tag
-  const char* tags = "serve";
-  int ntags = 1;
+  	// Get path to model directory from input
+  	const char* saved_model_dir = prior_info->DL_File;
+  	fprintf(stdout,"Model: %s\n", saved_model_dir);
+  	// model serve tag
+  	const char* tags = "serve";
+  	int ntags = 1;
 
-  TF_Session* Session = TF_LoadSessionFromSavedModel(SessionOpts, RunOpts, saved_model_dir, &tags, ntags, Graph, NULL, Status);
+  	TF_Session* Session = TF_LoadSessionFromSavedModel(SessionOpts, RunOpts, saved_model_dir, &tags, ntags, Graph, NULL, Status);
 
-  if(TF_GetCode(Status) != TF_OK)
-    fprintf(stderr,"%s\n",TF_Message(Status));
+  	if(TF_GetCode(Status) != TF_OK)
+    		fprintf(stderr,"%s\n",TF_Message(Status));
 
-  //****** Get input tensor
-  int NumInputs = 1;
-  TF_Output* Input = (TF_Output*)malloc(sizeof(TF_Output) * NumInputs);
+  	//****** Get input tensor
+  	int NumInputs = 1;
+  	TF_Output* Input = (TF_Output*)malloc(sizeof(TF_Output) * NumInputs);
 
-  TF_Output t0 = {TF_GraphOperationByName(Graph, "serving_default_input_1"), 0};
-  if(t0.oper == NULL)
-    fprintf(stderr,"ERROR: Failed TF_GraphOperationByName serving_default_input_1\n");
+  	TF_Output t0 = {TF_GraphOperationByName(Graph, "serving_default_input_1"), 0};
+  	if(t0.oper == NULL)
+    		fprintf(stderr,"ERROR: Failed TF_GraphOperationByName serving_default_input_1\n");
 
-  Input[0] = t0;
+  	Input[0] = t0;
 
-  //********* Get Output tensor
-  int NumOutputs = 1;
-  TF_Output* Output = (TF_Output*)malloc(sizeof(TF_Output) * NumOutputs);
+  	//********* Get Output tensor
+  	int NumOutputs = 1;
+  	TF_Output* Output = (TF_Output*)malloc(sizeof(TF_Output) * NumOutputs);
 
-  TF_Output t2 = {TF_GraphOperationByName(Graph, "StatefulPartitionedCall"), 0};
-  if(t2.oper == NULL)
-    fprintf(stderr,"ERROR: Failed TF_GraphOperationByName StatefulPartitionedCall\n");
+  	TF_Output t2 = {TF_GraphOperationByName(Graph, "StatefulPartitionedCall"), 0};
+  	if(t2.oper == NULL)
+   		fprintf(stderr,"ERROR: Failed TF_GraphOperationByName StatefulPartitionedCall\n");
 
-  Output[0] = t2;
+  	Output[0] = t2;
 
-  //********* Allocate data for inputs & outputs
-  TF_Tensor** InputValues = (TF_Tensor**)malloc(sizeof(TF_Tensor*)*NumInputs);
-  TF_Tensor** OutputValues = (TF_Tensor**)malloc(sizeof(TF_Tensor*)*NumOutputs);
+  	//********* Allocate data for inputs & outputs
+  	TF_Tensor** InputValues = (TF_Tensor**)malloc(sizeof(TF_Tensor*)*NumInputs);
+  	TF_Tensor** OutputValues = (TF_Tensor**)malloc(sizeof(TF_Tensor*)*NumOutputs);
 
-  // set the dimensions of the images here
-  int ndims      = 4;  // TF requires an additional dim for batch size: 3+1 (nx,ny,nslice,nbatch)
-  int model_ipsize_x   = Image->img_info.Nx;
-  int model_ipsize_y   = Image->img_info.Ny;
-  int model_ipsize_z   = 5;
-  int batch_size = 1;  
+  	// set the dimensions of the images here
+  	int ndims      = 4;  // TF requires an additional dim for batch size: 3+1 (nx,ny,nslice,nbatch)
+  	int model_ipsize_x   = Image->img_info.Nx;
+  	int model_ipsize_y   = Image->img_info.Ny;
+  	int model_ipsize_z   = 5;
+  	int batch_size = 1;  
 
-  // allocate TF arrays
-  int64_t dims[] = {batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z};
+  	// allocate TF arrays
+  	int64_t dims[] = {batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z};
 
-  fprintf(stdout,"batch_size %d,model_ipsize_x %d, model_ipsize_y %d, model_ipsize_z %d \n",batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z);
+  	fprintf(stdout,"batch_size %d,model_ipsize_x %d, model_ipsize_y %d, model_ipsize_z %d \n",batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z);
 
-  ENTRY   data[batch_size][model_ipsize_x][model_ipsize_y][model_ipsize_z];
-  int ndata = sizeof(ENTRY)*batch_size*model_ipsize_x*model_ipsize_y*model_ipsize_z; // number of bytes not number of elements
+  	ENTRY   data[batch_size][model_ipsize_x][model_ipsize_y][model_ipsize_z];
+  	int ndata = sizeof(ENTRY)*batch_size*model_ipsize_x*model_ipsize_y*model_ipsize_z; // number of bytes not number of elements
 
   // curate input data for given image slice
   // Image->img[nx][ny][slice]
@@ -414,156 +414,119 @@ void SolveProximalMap_Prior(struct Image *Image,
 
   
   
-  for (int k=0;k<Image->img_info.Nz;k++){     // this is the slice we are de-noising
+ 	for (int k=0;k<Image->img_info.Nz;k++){     // this is the slice we are de-noising
 
 
-  	for (int i=0; i<model_ipsize_x; i++) {
-  		for(int j=0; j<model_ipsize_y; j++) {
-  			for(int kk=0; kk<model_ipsize_z; kk++) {
-          		if((k==0 || k==1) && (kk==0 || kk==1)){
-            		data[0][i][j][kk] = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + 0];
-          		}
+  		for (int i=0; i<model_ipsize_x; i++) {
+  			for(int j=0; j<model_ipsize_y; j++) {
+  				for(int kk=0; kk<model_ipsize_z; kk++) {
+          				if((k==0 || k==1) && (kk==0 || kk==1)){
+            					data[0][i][j][kk] = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + 0];
+          				}
 			
-          		else if((k==(Image->img_info.Nz-1) || k==(Image->img_info.Nz-2)) && (kk==(model_ipsize_z-2) || kk==(model_ipsize_z-1))){
-            		data[0][i][j][kk] = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + Image->img_info.Nz-1];
-          		}
+          				else if((k==(Image->img_info.Nz-1) || k==(Image->img_info.Nz-2)) && (kk==(model_ipsize_z-2) || kk==(model_ipsize_z-1))){
+            					data[0][i][j][kk] = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + Image->img_info.Nz-1];
+          				}
          
-          		else
-            		data[0][i][j][kk] = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + k+kk-2];
-        	}
-      	}
-    }
+          				else
+            					data[0][i][j][kk] = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz  + k+kk-2];
+        			}
+      			}
+    		}
 
 
-    // no deallocator needed because data was put on a stack 
-    TF_Tensor* int_tensor = TF_NewTensor(TF_FLOAT, dims, ndims, data, ndata, &NoOpDeallocator, 0);
+    		// no deallocator needed because data was put on a stack 
+    		TF_Tensor* int_tensor = TF_NewTensor(TF_FLOAT, dims, ndims, data, ndata, &NoOpDeallocator, 0);
 
-    if (int_tensor == NULL)
-    	fprintf(stderr,"ERROR: Failed TF_NewTensor\n");
+	    	if (int_tensor == NULL)
+			fprintf(stderr,"ERROR: Failed TF_NewTensor\n");
 
-    InputValues[0] = int_tensor;
-
-
-    // ================================
-    // Run forward pass of model
-    // ================================
-    TF_SessionRun(Session, NULL, Input, InputValues, NumInputs, Output, OutputValues, NumOutputs, NULL, 0,NULL , Status);
-
-    if(TF_GetCode(Status) != TF_OK)
-    {
-      fprintf(stderr,"%s\n",TF_Message(Status));
-    }
+	    	InputValues[0] = int_tensor;
 
 
+	    	// ================================
+	    	// Run forward pass of model
+	    	// ================================
+	    	TF_SessionRun(Session, NULL, Input, InputValues, NumInputs, Output, OutputValues, NumOutputs, NULL, 0,NULL , Status);
 
-  	for (int i=0;i<Image->img_info.Nx;i++){
-		for (int j=0;j<Image->img_info.Ny;j++){
-			Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k];
-	   	}
-  	}
-  }
-	
+	    	if(TF_GetCode(Status) != TF_OK)
+	    	{
+	      		fprintf(stderr,"%s\n",TF_Message(Status));
+	    	}
 
 
-
-/*
-
-    // ================================
-    // Write outputs
-    // ================================
-    void* buff = TF_TensorData(OutputValues[0]);  // Return a pointer to model output
-    ENTRY* outvalues = (ENTRY*)buff;  // which is the extracted noise
+    		// write oiriginal Vmean image to the directory before subtracting noise from it
+    		if(k==100){
+	    		ENTRY* temp = (ENTRY *)  get_spc((Image->img_info.Ny)*(Image->img_info.Nx), sizeof(ENTRY));
+      			for(int i=0; i<model_ipsize_x; i++) {
+        			for (int j=0; j<model_ipsize_y; j++) {
+          				temp[i*Image->img_info.Ny+j]=ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k]; 
+        			}
+      			}
+      			if(myid==0){
+	      			char errorFname[200];
+	      			sprintf(errorFname,"/gpfs/alpine/gen006/proj-shared/xf9/recon/dcm134/input_%d",it);		    	  
+        			writeSinogram_float(errorFname, (ENTRY *) temp, Image->img_info.Nx, Image->img_info.Ny, 1);
+      			}
+      			free(temp);
+    		}
 
 
 
+	    	// subtract noise (model output) from original image and then clip it for non-negativity
+
+	    	int counter = 0;
+	    	for(int i=0; i<model_ipsize_x; i++) {
+	      		for (int j=0; j<model_ipsize_y; j++) {
+				if (reconMask[i][j]){
+
+		  			ENTRY pixel = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k]-outvalues[counter]; 
+		  			//clip 
+		  			if(positive_constraint ==1){
+		    				Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] = ((pixel < 0.0) ? 0.0 : pixel); 
+		  			}
+		  			else{
+		    				Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] = pixel;
+		  			}
+				}
+				counter++;
+	      		}
+	    	}
 
 
 
+    		// write ouput image
+    		if(k==100){
+	    		ENTRY* temp = (ENTRY *)  get_spc((Image->img_info.Ny)*(Image->img_info.Nx), sizeof(ENTRY));
+      			for(int i=0; i<model_ipsize_x; i++) {
+        			for (int j=0; j<model_ipsize_y; j++) {
+          				temp[i*Image->img_info.Ny+j]=Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k]; 
+        			}
+      			}
+      			if(myid==0){
+	      			char errorFname[200];
+	      			sprintf(errorFname,"/gpfs/alpine/gen006/proj-shared/xf9/recon/dcm134/output_%d",it);		    	  
+        			writeSinogram_float(errorFname, (ENTRY *) temp, Image->img_info.Nx, Image->img_info.Ny, 1);
+      			}
+      			free(temp);
+    		}
+
+
+	}
+		
 
 
 
+	// Free memory
+  	TF_DeleteGraph(Graph);
+	TF_DeleteSession(Session, Status);
+	TF_DeleteSessionOptions(SessionOpts);
+	TF_DeleteStatus(Status);
+	free(Input);
+	free(Output);
+	free(InputValues);
+	free(OutputValues);
 
-    // write oiriginal Vmean image to the directory before subtracting noise from it
-    if(k==100){
-	    ENTRY* temp = (ENTRY *)  get_spc((Image->img_info.Ny)*(Image->img_info.Nx), sizeof(ENTRY));
-      for(int i=0; i<model_ipsize_x; i++) {
-        for (int j=0; j<model_ipsize_y; j++) {
-          temp[i*Image->img_info.Ny+j]=ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k]; 
-        }
-      }
-      if(myid==0){
-	      char errorFname[200];
-	      sprintf(errorFname,"/gpfs/alpine/gen006/proj-shared/xf9/recon/dcm134/input_%d",it);		    	  
-        writeSinogram_float(errorFname, (ENTRY *) temp, Image->img_info.Nx, Image->img_info.Ny, 1);
-      }
-      free(temp);
-    }
-
-
-
-
-
-
-
-
-
-
-    // subtract noise (model output) from original image and then clip it for non-negativity
-
-    int counter = 0;
-    for(int i=0; i<model_ipsize_x; i++) {
-      for (int j=0; j<model_ipsize_y; j++) {
-        if (reconMask[i][j]){
-
-          ENTRY pixel = ProximalMapInput->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k]-outvalues[counter]; 
-          //clip 
-          if(positive_constraint ==1){
-            Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] = ((pixel < 0.0) ? 0.0 : pixel); 
-          }
-          else{
-            Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k] = pixel;
-          }
-        }
-        counter++;
-      }
-    }
-
-
-
-
-    // write ouput image
-    if(k==100){
-	    ENTRY* temp = (ENTRY *)  get_spc((Image->img_info.Ny)*(Image->img_info.Nx), sizeof(ENTRY));
-      for(int i=0; i<model_ipsize_x; i++) {
-        for (int j=0; j<model_ipsize_y; j++) {
-          temp[i*Image->img_info.Ny+j]=Image->img[i*Image->img_info.Ny*Image->img_info.Nz + j*Image->img_info.Nz + k]; 
-        }
-      }
-      if(myid==0){
-	      char errorFname[200];
-	      sprintf(errorFname,"/gpfs/alpine/gen006/proj-shared/xf9/recon/dcm134/output_%d",it);		    	  
-        writeSinogram_float(errorFname, (ENTRY *) temp, Image->img_info.Nx, Image->img_info.Ny, 1);
-      }
-      free(temp);
-    }
-
-
-
-
-  }
-  */
-
-
-
-  // Free memory
-  TF_DeleteGraph(Graph);
-  TF_DeleteSession(Session, Status);
-  TF_DeleteSessionOptions(SessionOpts);
-  TF_DeleteStatus(Status);
-  free(Input);
-  free(Output);
-  free(InputValues);
-  free(OutputValues);
 
 }
 

@@ -340,10 +340,9 @@ void SolveProximalMap_Prior(struct Image *Image,
                             struct Image *ProximalMapInput, 
                             float  SigmaLambda, struct PriorInfo *prior_info, int *order,int it,int myid)
 {
-	int j, Nxy;
-	float cost;
-  
-	Nxy =Image->img_info.Nx * Image->img_info.Ny; /* image size */
+	#pragma omp parallel
+	{  
+	const int Nxy =Image->img_info.Nx * Image->img_info.Ny; /* image size */
 
   	TF_Graph* Graph = TF_NewGraph();
 	TF_Status* Status = TF_NewStatus();
@@ -353,8 +352,9 @@ void SolveProximalMap_Prior(struct Image *Image,
 
   	// Get path to model directory from input
   	const char* saved_model_dir = prior_info->DL_File;
-  	fprintf(stdout,"Model: %s\n", saved_model_dir);
-  	// model serve tag
+  	//fprintf(stdout,"Model: %s\n", saved_model_dir);
+  	
+	// model serve tag
   	const char* tags = "serve";
   	int ntags = 1;
 
@@ -397,7 +397,7 @@ void SolveProximalMap_Prior(struct Image *Image,
   	// allocate TF arrays
   	int64_t dims[] = {batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z};
 
-  	fprintf(stdout,"batch_size %d,model_ipsize_x %d, model_ipsize_y %d, model_ipsize_z %d \n",batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z);
+  	//fprintf(stdout,"batch_size %d,model_ipsize_x %d, model_ipsize_y %d, model_ipsize_z %d \n",batch_size,model_ipsize_x,model_ipsize_y,model_ipsize_z);
 
   	ENTRY   data[batch_size][model_ipsize_x][model_ipsize_y][model_ipsize_z];
   	int ndata = sizeof(ENTRY)*batch_size*model_ipsize_x*model_ipsize_y*model_ipsize_z; // number of bytes not number of elements
@@ -413,7 +413,7 @@ void SolveProximalMap_Prior(struct Image *Image,
 
 
   
-  
+  	#pragma omp for
  	for (int k=0;k<Image->img_info.Nz;k++){     // this is the slice we are de-noising
 
 
@@ -526,7 +526,8 @@ void SolveProximalMap_Prior(struct Image *Image,
 	free(Output);
 	free(InputValues);
 	free(OutputValues);
-
+	
+	}
 
 }
 

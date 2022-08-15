@@ -454,7 +454,7 @@ void SolveProximalMap_Prior(struct Image *Image,
 	      		fprintf(stderr,"%s\n",TF_Message(Status));
 	    	}
 
-
+		/*
     		// write oiriginal Vmean image to the directory before subtracting noise from it
     		if(k==100){
 	    		ENTRY* temp = (ENTRY *)  get_spc((Image->img_info.Ny)*(Image->img_info.Nx), sizeof(ENTRY));
@@ -470,7 +470,7 @@ void SolveProximalMap_Prior(struct Image *Image,
       			}
       			free(temp);
     		}
-
+		*/
 
 
 	    	// subtract noise (model output) from original image and then clip it for non-negativity
@@ -494,7 +494,7 @@ void SolveProximalMap_Prior(struct Image *Image,
 	    	}
 
 
-
+		/*
     		// write ouput image
     		if(k==100){
 	    		ENTRY* temp = (ENTRY *)  get_spc((Image->img_info.Ny)*(Image->img_info.Nx), sizeof(ENTRY));
@@ -510,11 +510,13 @@ void SolveProximalMap_Prior(struct Image *Image,
       			}
       			free(temp);
     		}
+		*/
 
 
 	}
 		
-
+	// close session before deleting it
+	TF_CloseSession (Session, Status);
 
 
 	// Free memory

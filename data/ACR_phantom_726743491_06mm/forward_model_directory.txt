@@ -1,4 +1,0 @@
-../data/ACR_phantom_726743491_06mm/focal1/geom_recon.txt
-../data/ACR_phantom_726743491_06mm/focal2/geom_recon.txt
-../data/ACR_phantom_726743491_06mm/focal3/geom_recon.txt
-../data/ACR_phantom_726743491_06mm/focal4/geom_recon.txt

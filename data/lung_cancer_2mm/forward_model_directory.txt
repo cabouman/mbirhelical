@@ -1,4 +1,0 @@
-../data/lung_cancer_2mm/detector1/focal1/geom_recon.txt
-../data/lung_cancer_2mm/detector1/focal2/geom_recon.txt
-../data/lung_cancer_2mm/detector2/focal1/geom_recon.txt
-../data/lung_cancer_2mm/detector2/focal2/geom_recon.txt

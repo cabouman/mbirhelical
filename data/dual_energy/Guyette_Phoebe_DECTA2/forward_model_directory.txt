@@ -1,4 +1,0 @@
-../data/dual_energy/Guyette_Phoebe_DECTA2/detector1/focal1/geom_recon.txt
-../data/dual_energy/Guyette_Phoebe_DECTA2/detector1/focal2/geom_recon.txt
-../data/dual_energy/Guyette_Phoebe_DECTA2/detector2/focal1/geom_recon.txt
-../data/dual_energy/Guyette_Phoebe_DECTA2/detector2/focal2/geom_recon.txt

@@ -1,4 +1,0 @@
-../data/head_5139084/head_scan_06mm_test3/focal1/geom_recon.txt
-../data/head_5139084/head_scan_06mm_test3/focal2/geom_recon.txt
-../data/head_5139084/head_scan_06mm_test3/focal3/geom_recon.txt
-../data/head_5139084/head_scan_06mm_test3/focal4/geom_recon.txt

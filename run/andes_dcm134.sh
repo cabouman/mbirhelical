@@ -2,9 +2,9 @@
 # FILENAME: submit.sh
 
 #SBATCH -N 4
-#SBATCH -t 04:00:00
+#SBATCH -t 00:30:00
 #SBATCH -J AAPM_134
-#SBATCH -A stf006
+#SBATCH -A gen150
 #SBATCH -p batch
 
 

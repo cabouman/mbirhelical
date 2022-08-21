@@ -475,10 +475,6 @@ void compViewXYInfo(
 			Bij *= ((img_info->Del_xy)/((geom_info->Del_alphac)*costh));
 
 
-			//fprintf(stdout,"jx %d jy %d iv %d Mag %f ic_start %d ic_num %d ic %d del_c %f Bij %f\n",jx,jy,iv,view_xy_info->Mag[jx][jy][iv]*max_num*1.0/255,view_xy_info->ic_start[jx][jy][iv],view_xy_info->ic_num[jx][jy][iv],ic,del_c, Bij);
-			//fflush(stdout);
-
-
 			temp_B[iv][p] = Bij;
 		}
 	}
@@ -573,6 +569,7 @@ void compViewXYZInfo(
   	//{
 		d_1 = (geom_info->Nr*geom_info->Del_dr/2 -geom_info->offset_dr)*(geom_info->r_si+geom_info->fov/2.0)/geom_info->r_sd;
 		d_2 = (geom_info->Nr*geom_info->Del_dr/2 +geom_info->offset_dr)*(geom_info->r_si+geom_info->fov/2.0)/geom_info->r_sd;
+
 	
 		if ((source_loc_info->zs[0] <= source_loc_info->zs[geom_info->Nv-1])&&(z < (source_loc_info->zs[0]-d_1) || z > (source_loc_info->zs[geom_info->Nv-1]+d_2)))
 		{
@@ -723,6 +720,7 @@ void compAColxyzOnFly(
 		iv = view_xyz_info->iv_start + l;
 		float C_multiply = (sqrt((source_loc_info->xs[iv]-x)*(source_loc_info->xs[iv]-x) + (source_loc_info->ys[iv]-y)*(source_loc_info->ys[iv]-y) + (source_loc_info->zs[iv]-z)*(source_loc_info->zs[iv]-z)));
 		float C_divide = (sqrt((source_loc_info->xs[iv]-x)*(source_loc_info->xs[iv]-x) + (source_loc_info->ys[iv]-y)*(source_loc_info->ys[iv]-y))*geom_info->Del_dr);
+
 	
 		for (p = 0; p < view_xy_info->ic_num[jx][jy][iv]; p++)	/* channel loop */
 		{
@@ -732,10 +730,19 @@ void compAColxyzOnFly(
 				ir = view_xyz_info->ir_start[iv] + q;
 				/* ATTENTION!! CHANGE SIGN HERE! ROW 0 IS CLOSEST */
 				del_r = view_xy_info->Mag[jx][jy][iv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num*(z-source_loc_info->zs[iv]) + ir*geom_info->Del_dr - geom_info->half_detr;
-
 				Cij = clip(0.0, (((img_info->Del_z*view_xy_info->Mag[jx][jy][iv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num+geom_info->Del_dr)/2.0)-fabs(del_r)), min(img_info->Del_z*view_xy_info->Mag[jx][jy][iv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num, geom_info->Del_dr));
 				Cij *= C_multiply;
 				Cij /= C_divide;
+
+
+
+				//if( (jy==100 || jy==200) && (jz ==25 ||jz==50 || jz == 100) && iv <250)
+				//	fprintf(stdout,"jx %d jy %d jz %d iv %d ic %d ir %d Cij %f\n",jx,jy,jz,iv,ic,ir,Cij);
+
+
+
+
+
 				Atmp = view_xy_info->B[jx][jy][iv][p]*view_xy_info->B_MaxPointer[jx*img_info->Ny+jy]*inverse_num*Cij;
 				if (Atmp > EPSILON)	/* non-zero entry */
 				{

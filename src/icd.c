@@ -1052,12 +1052,12 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 					pixel = ICDStep_Likelihood(&icd_info, prior_info, jx, jy, jz, X, e, D, TildeV,geom_info->lambda0,img_info, &col_xyz, SigmaLambda,consensus_X,it,DE_numprocs);
 					pixel = X[offset+jz] + damping_constant*(pixel - X[offset+jz]);
-					/* clip */
+					// clip
 					if(positive_constraint ==1){
 						X[offset+jz] = ((pixel < 0.0) ? 0.0 : pixel);
 					}
 					else{
-						/* no clipping for now try */
+						//no clipping for now try
 						X[offset+jz] = pixel; 
 					}
 
@@ -1065,15 +1065,6 @@ void paraICD_Likelihood(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 					updateError(e, &(col_xyz), diff);
 					VSC[jx][jy] += fabsf(diff);
 
-					/*
-					int myid;
-					MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-
-					if(tid==0 && myid ==0){
-						fprintf(stdout,"jx %d jy %d jz %d VSC %f \n",jx,jy,jz,VSC[jx][jy]);
-						fflush(stdout);
-					}
-					*/
 				}
 				} 
 			}
@@ -1393,7 +1384,6 @@ void ICDReconstruct(
 
 	//TwoGMinusIOperator_PnP(TildeV, V, consensus_X,  Vmean, prior_info, recon_mask, ce_info->SigmaLambda, filter, order, myid,NUMPROCS);
 
-	int num_threads=0;
 
     	if(!debug_mode){
 
@@ -1402,27 +1392,19 @@ void ICDReconstruct(
     		}
 
 
-		#pragma omp parallel
-		{
-		num_threads = omp_get_num_threads();
-		#pragma omp for
+		#pragma omp parallel for
     		for (i =0;i<image->img_info.Nx*image->img_info.Ny*image->img_info.Nz;i++){
         		Vmean->img[i] = Vmean->img[i]/DE_numprocs;
     		}
-		}
 	}
 	else{
 		fprintf(stdout,"Debug Mode Turned on ! \n");
 		fflush(stdout);
 
-		#pragma omp parallel
-		{
-		num_threads = omp_get_num_threads();
-		#pragma omp for
+		#pragma omp parallel for
  		for (i =0;i<image->img_info.Nx*image->img_info.Ny*image->img_info.Nz;i++){
         		Vmean->img[i] = V->img[i];
     		}
-		}
 	}
 
 		/* ICD iteration starts here */
@@ -1487,9 +1469,10 @@ void ICDReconstruct(
 
 
 	
+		/* write out the image after each iteration */
 
+		
 		if (myid==0){
-			/* write out the image after each iteration */
 			if(PnP_mode){	
 				strcpy(name, "");
 				sprintf(suffix, "myid%d.vjk",myid);
@@ -1505,6 +1488,7 @@ void ICDReconstruct(
 				writeImage(name, Vmean);
 			}
 		}
+		
 
 		MPI_Barrier(*DE_comm);
 

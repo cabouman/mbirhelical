@@ -1,0 +1,2 @@
+../data/L067_square_root_weight/focal1/geom_recon.txt
+../data/L067_square_root_weight/focal2/geom_recon.txt

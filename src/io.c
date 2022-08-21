@@ -1,5 +1,3 @@
-/* version 6.0, P.Jin 07/13/2012 */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,14 +9,14 @@
 
 /* byte-order possibilities */
 /*
-#define LittleEndian    0x4949
-#define BigEndian   0x4d4d
-
-#define is_bigendian() ( (*(char*)&check_i) == 0 )
-#define HostByteOrder   ( is_bigendian() ? BigEndian : LittleEndian)
-unsigned short int FileByteOrder = BigEndian;
-const unsigned short int check_i=1;
-*/
+ * #define LittleEndian    0x4949
+ * #define BigEndian   0x4d4d
+ *
+ * #define is_bigendian() ( (*(char*)&check_i) == 0 )
+ * #define HostByteOrder   ( is_bigendian() ? BigEndian : LittleEndian)
+ * unsigned short int FileByteOrder = BigEndian;
+ * const unsigned short int check_i=1;
+ * */
 
 void readImgInfo(char *fname, struct ImgInfo *img_info)
 {
@@ -124,19 +122,21 @@ void printImgInfo(struct ImgInfo *img_info)
 	fprintf(stdout, "%s\n", img_info->imgFile);
 }
 
+
 void readImage(char *fname, struct Image *image)
 {
 	FILE *fp;
 	int i, Nx, Ny, Nz, len;
-	ENTRY pixel;
 
-	if ((fp = fopen(fname, "rb")) == NULL)
+	if ((fp = fopen(fname, "r")) == NULL)
 	{
 		fprintf(stderr, "ERROR in readImage: can't open file %s\n", fname);
 		exit(1);
 	}
 
-	fscanf(fp, "%d %d %d\n", &Nx, &Ny, &Nz);
+	fread(&Nx,sizeof(int),1,fp);
+	fread(&Ny,sizeof(int),1,fp);
+	fread(&Nz,sizeof(int),1,fp);
 	if (Nx != image->img_info.Nx || Ny != image->img_info.Ny || Nz != image->img_info.Nz)
 	{
 		fprintf(stderr, "ERROR in readImage: dimension does not match.\n");
@@ -145,16 +145,10 @@ void readImage(char *fname, struct Image *image)
 
 	if (sizeof(ENTRY) == sizeof(float))
 	{
-		/* allocate memory to store image data */
 		len = (image->img_info.Nx)*(image->img_info.Ny)*(image->img_info.Nz);
 		image->img = (ENTRY *)get_spc(len, sizeof(ENTRY));
 
-		/* TODO check endianness before read ? */
-		for (i = 0; i < len; i++)
-		{
-			fscanf(fp, "%f ", &pixel);
-			image->img[i] = hu2miu(pixel, MIU_AIR, MIU_WATER);	/* change to mm-1 */
-		}
+		fread(image->img,sizeof(ENTRY),len,fp);
 	}
 	else
 	{
@@ -169,29 +163,22 @@ void writeImage(char *fname, struct Image *image)
 {
 	FILE *fp;
 	int i, len;
-	ENTRY pixel;
 
-	if ((fp = fopen(fname, "wb")) == NULL)
+	if ((fp = fopen(fname, "w")) == NULL)
 	{
 		fprintf(stderr, "ERROR in writeImage: can't open file %s\n", fname);
 		exit(1);
 	}
 
-	fprintf(fp, "%d %d %d\n", image->img_info.Nx, image->img_info.Ny, image->img_info.Nz);
+	fwrite(&(image->img_info.Nx),sizeof(int),1,fp);
+	fwrite(&(image->img_info.Ny),sizeof(int),1,fp);
+	fwrite(&(image->img_info.Nz),sizeof(int),1,fp);
+
 
 	if (sizeof(ENTRY) == sizeof(float))
 	{
 		len = (image->img_info.Nx)*(image->img_info.Ny)*(image->img_info.Nz);
-
-		/* TODO check endianness before write ? */
-		for (i = 0; i < len; i++)
-		{
-			pixel = miu2hu(image->img[i], MIU_AIR, MIU_WATER);	/* change to HU */
-			if(pixel==0)
-				fprintf(fp, "0 ");
-			else
-				fprintf(fp, "%f ", pixel);
-		}
+		fwrite(image->img,sizeof(ENTRY),len,fp);
 	}
 	else
 	{
@@ -203,92 +190,6 @@ void writeImage(char *fname, struct Image *image)
 }
 
 
-void readImage_short(char *fname, struct Image *image)
-{
-	FILE *fp;
-	int i, Nx, Ny, Nz, len,len2;
-	float Dx,Dy,Dz,x0,y0,z0;
-	unsigned short *input;
-
-	if ((fp = fopen(fname, "r")) == NULL)
-	{
-		fprintf(stderr, "ERROR in readImage: can't open file %s\n", fname);
-		exit(1);
-	}
-
-	fscanf(fp, "%d %d %d", &Nx, &Ny, &Nz);
-/* this is new */
-	fscanf(fp, "%f %f %f",&Dx,&Dy,&Dz);
-	fscanf(fp, "%f %f %f",&x0,&y0,&z0);
-	fseek(fp,1,SEEK_CUR);
-
-	if (Nx != image->img_info.Nx || Ny != image->img_info.Ny || Nz != image->img_info.Nz)
-	{
-		fprintf(stderr, "ERROR in readImage: dimension does not match.\n");
-		exit(1);
-	}
-
-	/* allocate memory to store image data */
-	len = (image->img_info.Nx)*(image->img_info.Ny)*(image->img_info.Nz);
-	image->img = (ENTRY *)get_spc(len, sizeof(ENTRY));
-	input = (unsigned short *)get_spc(len, sizeof(unsigned short));
-
-	len2=fread(input,sizeof(unsigned short),len,fp);
-	if( len2 != len )
-	{
-		fprintf(stderr, "ERROR in readImage: file terminated early.\n");
-		fprintf(stderr, "file size=%d, expected size=%d\n",len2,len);
-		fclose(fp);
-		exit(1);
-	}
-
-	for (i = 0; i < len; i++)
-		image->img[i] = hu2miu((ENTRY)input[i], MIU_AIR, MIU_WATER);	/* change to mm-1 */
-
-	fclose(fp);
-	free(input);
-}
-
-
-void writeImage_short(char *fname, struct Image *image)
-{
-	FILE *fp;
-	int i, len;
-	unsigned short *output;
-	ENTRY pixel;
-
-	if ((fp = fopen(fname, "w")) == NULL)
-	{
-		fprintf(stderr, "ERROR in writeImage: can't open file %s\n", fname);
-		exit(1);
-	}
-
-	fprintf(fp, "%03d %03d %03d\n", image->img_info.Nx, image->img_info.Ny, image->img_info.Nz);
-/* this is new */
-	fprintf(fp, "%f %f %f\n", image->img_info.Del_xy, image->img_info.Del_xy, image->img_info.Del_z);
-	fprintf(fp, "%f %f %f\n", image->img_info.x0, image->img_info.y0, image->img_info.z0);
-
-	len = (image->img_info.Nx)*(image->img_info.Ny)*(image->img_info.Nz);
-
-	/* allocate memory for temporary storage */
-	output = (unsigned short *)get_spc(len, sizeof(unsigned short));
-
-	for (i = 0; i < len; i++)
-	{
-		pixel = max(0,miu2hu(image->img[i], MIU_AIR, MIU_WATER));	/* change to mm-1 */
-		output[i] = (unsigned short)(pixel + 0.5);	/* round to integer and cast */
-	}
-
-	if( fwrite(output,sizeof(unsigned short),len,fp) != len )
-	{
-		fprintf(stderr, "ERROR in readImage: file not written successfully.\n");
-		fclose(fp);
-		exit(1);
-	}
-
-	fclose(fp);
-	free(output);
-}
 
 
 void readReconMask(char **recon_mask, struct ImgInfo *img_info)
@@ -321,7 +222,38 @@ void readReconMask(char **recon_mask, struct ImgInfo *img_info)
 }
 
 
-void readGeomInfo(char *fname, struct GeomInfo *geom_info)
+void readAll_GeomDirectory(char *fname,  int my_node_index, int total_nodes, struct GeomInfo *geom_info){
+	FILE *fp;
+	char tag[200];
+	int number_of_forward_models = geom_info->num_sources * geom_info->num_focal_spots;
+
+	fprintf(stdout,"num_of_forward_models %d \n",number_of_forward_models);
+	fflush(stdout);
+
+	char forward_directories[number_of_forward_models][200];
+	if ((fp = fopen(fname, "r")) == NULL)
+	{
+		fprintf(stderr, "ERROR in readGeomInfoDirectory: can't open file %s\n",fname);
+	}
+	fprintf(stdout,"fname in readAll is %s \n",fname);
+
+	int index=0;
+	for (index=0;index < number_of_forward_models;index++){
+		fscanf(fp,"%s\n",forward_directories[index]);
+
+		fprintf(stdout,"index %d forward_directories %s \n",index,forward_directories[index]);
+	}
+	fclose(fp);
+		
+	readGeomInfo(&forward_directories[my_node_index % number_of_forward_models][0],total_nodes,geom_info);
+
+
+	fprintf(stdout,"node_id %d forward %d \n",my_node_index,my_node_index %number_of_forward_models);
+	fflush(stdout);
+
+}
+
+void readGeomInfo(char *fname, int total_nodes,struct GeomInfo *geom_info)
 {
 	FILE *fp;
 	char tag[100];
@@ -336,8 +268,20 @@ void readGeomInfo(char *fname, struct GeomInfo *geom_info)
 	fscanf(fp, "%d\n\n", &(geom_info->Nr));
 	fgets(tag, 100, fp);
 	fscanf(fp, "%d\n\n", &(geom_info->Nc));
+
+
 	fgets(tag, 100, fp);
 	fscanf(fp, "%d\n\n", &(geom_info->Nv));
+	if(geom_info->Nv % (total_nodes/(geom_info->num_sources *geom_info->num_focal_spots))==0){
+		geom_info->Nv = geom_info->Nv / (total_nodes/(geom_info->num_sources *geom_info->num_focal_spots));
+	}	
+	else{
+		fprintf(stdout,"Nv must be a multiple of (total_nodes/sources*focal_spots)\n");
+		exit(1);
+	}	
+	
+
+
 	fgets(tag, 100, fp);
 	fscanf(fp, "%d\n\n", &(geom_info->Nvpr));
 	fgets(tag, 100, fp);
@@ -347,15 +291,26 @@ void readGeomInfo(char *fname, struct GeomInfo *geom_info)
 	fgets(tag, 100, fp);
 	fscanf(fp, "%f\n\n", &(geom_info->u));
 	fgets(tag, 100, fp);
-	fscanf(fp, "%f\n\n", &(geom_info->beta0));
+	fscanf(fp, "%f\n\n", &(geom_info->zs_0));
+
+
+
 	fgets(tag, 100, fp);
 	fscanf(fp, "%f\n\n", &(geom_info->Del_beta));
+	geom_info->Del_beta = geom_info->Del_beta *(total_nodes/(geom_info->num_sources *geom_info->num_focal_spots));
+
+	
+	
+	
+	
 	fgets(tag, 100, fp);
 	fscanf(fp, "%f\n\n", &(geom_info->Del_alphac));
 	fgets(tag, 100, fp);
 	fscanf(fp, "%f\n\n", &(geom_info->del_alphac));
 	fgets(tag, 100, fp);
 	fscanf(fp, "%f\n\n", &(geom_info->Del_dr));
+	fgets(tag, 100, fp);
+	fscanf(fp, "%f\n\n", &(geom_info->offset_dr));
 	fgets(tag, 100, fp);
 	fscanf(fp, "%f\n\n", &(geom_info->fov));
 	fgets(tag, 100, fp);
@@ -365,15 +320,22 @@ void readGeomInfo(char *fname, struct GeomInfo *geom_info)
 	fgets(tag, 100, fp);
 	fscanf(fp, "%s\n\n", geom_info->sinoFile);
 	fgets(tag, 100, fp);
+	fscanf(fp, "%s\n\n", geom_info->wghtFile);
+	fgets(tag, 100, fp);
 	fscanf(fp, "%s\n\n", geom_info->doseFile);
 	fgets(tag, 100, fp);
 	fscanf(fp, "%s\n\n", geom_info->offsetFile);
 	fgets(tag, 100, fp);
-	fscanf(fp, "%s\n", geom_info->detectorsFile);
-
+	fscanf(fp, "%s\n\n", geom_info->detectorsFile);
+	fgets(tag, 100, fp);
+	fscanf(fp, "%s\n",geom_info->viewAnglesList);
+	fgets(tag, 100, fp);
+	fscanf(fp, "%s\n",geom_info->zPositionList);
 	fclose(fp);
 }
 
+
+/*
 void writeGeomInfo(char *fname, struct GeomInfo *geom_info)
 {
 	FILE *fp;
@@ -398,16 +360,23 @@ void writeGeomInfo(char *fname, struct GeomInfo *geom_info)
 	fprintf(fp, "%f\n\n", geom_info->r_sd);
 	fprintf(fp, "un-normalized pitch (det rows/rot)\n");
 	fprintf(fp, "%f\n\n", geom_info->u);
-	fprintf(fp, "initial view angle (rad)\n");
-	fprintf(fp, "%f\n\n", geom_info->beta0);
+	fprintf(fp, "X-ray source initial z position (mm)\n");
+	fprintf(fp,"%f\n\n", geom_info->zs_0);
+
+
 	fprintf(fp, "view angle spacing (rad)\n");
 	fprintf(fp, "%f\n\n", geom_info->Del_beta);
+	
+
+
 	fprintf(fp, "detector channel angle spacing (rad)\n");
 	fprintf(fp, "%f\n\n", geom_info->Del_alphac);
 	fprintf(fp, "detector channel offset (rad)\n");
 	fprintf(fp, "%f\n\n", geom_info->del_alphac);
 	fprintf(fp, "detector row width (mm)\n");
 	fprintf(fp, "%f\n\n", geom_info->Del_dr);
+	fprintf(fp, "detector row offset (mm)\n");
+	fprintf(fp, "%f\n\n", geom_info->offset_dr);
 	fprintf(fp, "diameter of field of view (mm)\n");
 	fprintf(fp, "%f\n\n", geom_info->fov);
 	fprintf(fp, "initial photon counts (0 for noiseless)\n");
@@ -416,13 +385,22 @@ void writeGeomInfo(char *fname, struct GeomInfo *geom_info)
 	fprintf(fp, "%f\n\n", geom_info->evar);
 	fprintf(fp, "sinogram location\n");
 	fprintf(fp, "%s\n", geom_info->sinoFile);
+	fprintf(fp, "weight location\n");
+	fprintf(fp, "%s\n", geom_info->wghtFile);
 	fprintf(fp, "dosage location\n");
 	fprintf(fp, "%s\n", geom_info->doseFile);
 	fprintf(fp, "offset data location\n");
 	fprintf(fp, "%s\n", geom_info->offsetFile);
+	fprintf(fp, "view angles list\n");
+	fprintf(fp, "%s\n", geom_info->viewAnglesList);
+	fprintf(fp, "Source Z position list\n");
+	fprintf(fp, "%s\n", geom_info->zPositionList);
 
 	fclose(fp);
 }
+*/
+
+
 
 void printGeomInfo(struct GeomInfo *geom_info)
 {
@@ -442,8 +420,8 @@ void printGeomInfo(struct GeomInfo *geom_info)
 	fprintf(stdout, "%f\n", geom_info->r_sd);
 	fprintf(stdout, "un-normalized pitch (det rows/rot): ");
 	fprintf(stdout, "%f\n", geom_info->u);
-	fprintf(stdout, "initial view angle (rad): ");
-	fprintf(stdout, "%f\n", geom_info->beta0);
+	fprintf(stdout, "X-ray source initial z position (mm): ");
+	fprintf(stdout, "%f\n", geom_info->zs_0);
 	fprintf(stdout, "view angle spacing (rad): ");
 	fprintf(stdout, "%f\n", geom_info->Del_beta);
 	fprintf(stdout, "detector channel angle spacing (rad): ");
@@ -452,6 +430,8 @@ void printGeomInfo(struct GeomInfo *geom_info)
 	fprintf(stdout, "%f\n", geom_info->del_alphac);
 	fprintf(stdout, "detector row width (mm): ");
 	fprintf(stdout, "%f\n", geom_info->Del_dr);
+	fprintf(stdout, "detector row offset (mm): ");
+	fprintf(stdout, "%f\n", geom_info->offset_dr);
 	fprintf(stdout, "diameter of field of view (mm): ");
 	fprintf(stdout, "%f\n", geom_info->fov);
 	fprintf(stdout, "initial photon counts (0 for noiseless): ");
@@ -460,10 +440,16 @@ void printGeomInfo(struct GeomInfo *geom_info)
 	fprintf(stdout, "%f\n", geom_info->evar);
 	fprintf(stdout, "sinogram file location: ");
 	fprintf(stdout, "%s\n", geom_info->sinoFile);
+	fprintf(stdout, "weight file location: ");
+	fprintf(stdout, "%s\n", geom_info->wghtFile);
 	fprintf(stdout, "dosage file location: ");
 	fprintf(stdout, "%s\n", geom_info->doseFile);
 	fprintf(stdout, "offset file location: ");
 	fprintf(stdout, "%s\n", geom_info->offsetFile);
+	fprintf(stdout, "view angles list: ");
+	fprintf(stdout, "%s\n", geom_info->viewAnglesList);
+	fprintf(stdout, "source z position list: ");
+	fprintf(stdout, "%s\n", geom_info->zPositionList);
 }
 
 
@@ -495,12 +481,11 @@ ENTRY* readSinogram_new(char *fname, int length)
 }
 
 
-ENTRY* readSinogram_float(char *fname, int length)
+ENTRY* readSinogram_float(char *fname, ENTRY *e, int length)
 {
 	FILE *fp;
 	int Nv, Nc, Nr;
 	char temp;
-	ENTRY *sino;
 
 	if ((fp = fopen(fname, "rb")) == NULL)
 	{
@@ -512,18 +497,17 @@ ENTRY* readSinogram_float(char *fname, int length)
 	fread(&temp,1,1,fp);   /* skip past carriage return */
 	if(length != Nr*Nc*Nv)
 	{	
-		fprintf(stderr, "ERROR in readSinogram: %s header doesn't match geometry.\n",fname);
+		fprintf(stderr, "ERROR in readSinogram: %s header doesn't match geometry. length %d Nr %d Nc %d Nv %d\n",fname,length,Nr,Nc,Nv);
 		exit(-1);
 	}
 
-	sino = (ENTRY *)get_spc(length, sizeof(ENTRY));
-	if( fread(sino,sizeof(ENTRY),length,fp) != length )
+	if( fread(e,sizeof(ENTRY),length,fp) != length )
 	{
 		fprintf(stderr, "ERROR in readSinogram: file terminated early.\n");
 		fclose(fp);
 		exit(1);
 	}
-	return(sino);
+	return(e);
 }
 
 
@@ -556,10 +540,10 @@ void writeSinogram_float(char *fname, ENTRY *Y, int Nr, int Nc, int Nv)
 
 /* reads/fills all available sinogram data (counts,dosage,etc.) */
 
-void fillSinogramData(struct Sinogram *sinogram)
+void fillSinogramData(struct Sinogram *sinogram,int num_nodes,int myid)
 {
 	int i,Nr,Nc,Nv,Nvpr,len,Nrc;
-	float dose,counts,sum,offset;
+	float dose,counts,offset;
 	char offsetFlag=0;
 	ENTRY *detector_mask;
 
@@ -575,14 +559,19 @@ void fillSinogramData(struct Sinogram *sinogram)
 	/* have dosage data */
 	if (strcmp(sinogram->geom_info.doseFile, "NA") != 0)
 	{
-		sinogram->counts = readSinogram_float(sinogram->geom_info.sinoFile, Nr*Nc*Nv);
-		sinogram->dose = readSinogram_float(sinogram->geom_info.doseFile, Nr*Nc*Nvpr);
+                sinogram->counts = (ENTRY *)get_spc(Nr*Nc*Nv, sizeof(ENTRY));
+
+		 readSinogram_float(sinogram->geom_info.sinoFile,sinogram->counts, Nr*Nc*Nv);
+
+                sinogram->dose = (ENTRY *)get_spc(Nr*Nc*Nvpr, sizeof(ENTRY));
+		readSinogram_float(sinogram->geom_info.doseFile,sinogram->dose, Nr*Nc*Nvpr);
 
 		sinogram->geom_info.lambda0 = 1;   	/* basically used as flag in this case */
 
 		if (strcmp(sinogram->geom_info.offsetFile, "NA") != 0)
 		{
-			sinogram->offset = readSinogram_float(sinogram->geom_info.offsetFile, Nr*Nc);
+		        sinogram->offset = (ENTRY *)get_spc(Nr*Nc, sizeof(ENTRY));
+			readSinogram_float(sinogram->geom_info.offsetFile,sinogram->offset, Nr*Nc);
 			offsetFlag=1;
 		}
 
@@ -590,8 +579,8 @@ void fillSinogramData(struct Sinogram *sinogram)
 		len = Nr*Nc*Nv;
 		sinogram->sino = (ENTRY *)get_spc(len, sizeof(ENTRY));
 		sinogram->D = (ENTRY *)get_spc(len, sizeof(ENTRY));
+		readSinogram_float(sinogram->geom_info.wghtFile,sinogram->D, len);
 
-		sum=0;
 		for (i = 0; i < len; i++)
 		{
 			counts=sinogram->counts[i];
@@ -606,25 +595,14 @@ void fillSinogramData(struct Sinogram *sinogram)
 			dose = max(1,dose);
 
 			sinogram->sino[i]= log(dose/counts);
-			if(dose >= counts)
-				sinogram->D[i]= counts/dose;
-			else
-				sinogram->D[i]= 1.0;
 			/*sinogram->D[i]= 1.0;*/
 			/*sinogram->D[i]= 1.0/4.0 + 3.0/4.0*counts/dose;*/
 			/*sinogram->D[i]= sqrt(counts/dose);*/
 			/*sinogram->D[i]= pow(counts/dose,0.9);*/
 
 			/* this is for weighting out "bad" detectors */
-			if (strcmp(sinogram->geom_info.detectorsFile, "NA") != 0)
-				if(detector_mask[i%Nrc]>0)
-					sinogram->D[i]=0;
-			sum += sinogram->D[i];
 		}
 		/* normalize so that trace(D)=trace(I) */
-		for (i = 0; i < len; i++)
-			sinogram->D[i] *= (len/sum);
-
 		free(sinogram->counts);
 		free(sinogram->dose);
 		if(offsetFlag)
@@ -632,30 +610,34 @@ void fillSinogramData(struct Sinogram *sinogram)
 	}
 	else  /* no dosage data */
 	{
-		sinogram->sino = readSinogram_float(sinogram->geom_info.sinoFile, Nr*Nc*Nv);
+
+		ENTRY*  full_sino_data = (ENTRY *)get_spc(Nr*Nc*Nv*(num_nodes/(sinogram->geom_info.num_focal_spots *sinogram->geom_info.num_sources)), sizeof(ENTRY));
+		readSinogram_float(sinogram->geom_info.sinoFile,full_sino_data, Nr*Nc*Nv*(num_nodes/(sinogram->geom_info.num_focal_spots *sinogram->geom_info.num_sources)));
+
+		sinogram->sino = (ENTRY *)get_spc(Nr*Nc*Nv,sizeof(ENTRY));
+		
+		for(i=0;i<Nv ;i++){
+			memcpy(&sinogram->sino[i*Nr*Nc],&full_sino_data[i*(num_nodes/(sinogram->geom_info.num_focal_spots *sinogram->geom_info.num_sources))*Nr*Nc + myid/(sinogram->geom_info.num_focal_spots*sinogram->geom_info.num_sources)*Nr*Nc],sizeof(ENTRY)*Nr*Nc);
+
+			//if(myid==3){
+			//fprintf(stdout,"myid %d i %d index %d \n",myid,i,i*(num_nodes/(sinogram->geom_info.num_focal_spots *sinogram->geom_info.num_sources)) + myid/sinogram->geom_info.num_focal_spots);
+			//fflush(stdout);
+			//}
+		}
+
+	 	free((void *)full_sino_data);	
 
 		/* fill in counts/dosage if assuming uniform dosage lambda0 */
-		if(sinogram->geom_info.lambda0 > 0)
-		{
-			len = Nr*Nc*Nv;
-			sinogram->D = (ENTRY *)get_spc(len, sizeof(ENTRY));
-			/*sum=0; */
-			for (i = 0; i < len; i++)
-			{
-				counts = sinogram->geom_info.lambda0 * exp(-sinogram->sino[i]);
-				/*sinogram->D[i] = counts; */
-				if( sinogram->geom_info.evar > 0 )
-					sinogram->D[i] = counts/sinogram->geom_info.evar;
-				else
-					sinogram->D[i] = counts;
-				/*sum += sinogram->D[i]; */
-			}
-			/* normalize so that trace(D)=trace(I) */
-			
-			/*for (i = 0; i < len; i++)
-				sinogram->D[i] *= (len/sum);
-			*/
+		len = Nr*Nc*Nv*(num_nodes/(sinogram->geom_info.num_focal_spots *sinogram->geom_info.num_sources));
+
+		ENTRY * full_D_data = (ENTRY *) get_spc(len,sizeof(ENTRY));	
+		readSinogram_float(sinogram->geom_info.wghtFile,full_D_data, len);
+		sinogram->D = (ENTRY *)get_spc(Nr*Nc*Nv, sizeof(ENTRY));
+
+		for(i=0;i<Nv;i++){
+			memcpy(&sinogram->D[i*Nr*Nc],&full_D_data[i*(num_nodes/(sinogram->geom_info.num_focal_spots *sinogram->geom_info.num_sources))*Nr*Nc + myid/(sinogram->geom_info.num_focal_spots*sinogram->geom_info.num_sources)*Nr*Nc],sizeof(ENTRY)*Nr*Nc);
 		}
+		free((void *)full_D_data);
 	}
 
 }
@@ -754,7 +736,6 @@ void writeSinogram(char *fname, struct Sinogram *sinogram)
 void readPrior(char *fname, struct PriorInfo *prior_info)
 {
 	FILE *fp;
-	float c;
 	char tag[100];
 
 	if ((fp = fopen(fname, "r")) == NULL)
@@ -768,17 +749,40 @@ void readPrior(char *fname, struct PriorInfo *prior_info)
 	fgets(tag, 100, fp);
 	fscanf(fp, "%f\n\n", &prior_info->p);
 	fgets(tag, 100, fp);
-	fscanf(fp, "%f\n\n", &c);
+	fscanf(fp, "%f\n\n", &prior_info->T);
 	fgets(tag, 100, fp);
-	fscanf(fp, "%f\n", &prior_info->sigma);
-
-	prior_info->c = hu2miu(c, MIU_AIR, MIU_WATER);
+	fscanf(fp, "%f\n", &prior_info->SigmaX);
 
 	fprintf(stdout, "\nPRIOR PARAMETERS:\n");
 	fprintf(stdout, "q = %f\n", prior_info->q);
 	fprintf(stdout, "p = %f\n", prior_info->p);
-	fprintf(stdout, "c = %f mm-1 (%f HU)\n", prior_info->c, c);
-	fprintf(stdout, "sigma = %f\n", prior_info->sigma);
+	fprintf(stdout, "T = %f \n", prior_info->T);
+	fprintf(stdout, "Sigma = %f (-1^mm)\n", prior_info->SigmaX);
 
 	fclose(fp);
 }
+
+
+void readCE(char *fname, struct CEInfo *ce_info)
+{
+        FILE *fp;
+        float c;
+        char tag[100];
+
+        if ((fp = fopen(fname, "r")) == NULL)
+        {
+                fprintf(stderr, "ERROR in readCE: can't open file %s\n", fname);
+                exit(1);
+        }
+
+        fgets(tag, 100, fp);
+        fscanf(fp, "%f\n\n", &ce_info->SigmaLambda);
+        fgets(tag, 100, fp);
+        fscanf(fp, "%f\n\n", &ce_info->consensus_rho);
+        fprintf(stdout, "\nCE PARAMETERS:\n");
+        fprintf(stdout, "SigmaLambda = %f\n", ce_info->SigmaLambda);
+	fprintf(stdout,"Consensus Rho =%f\n",ce_info->consensus_rho);
+
+        fclose(fp);
+}
+

@@ -14,7 +14,7 @@ typedef float ENTRY;		/* four bytes, entries of arrays */
 
 #define PI		3.1415926535897932384
 #define EPSILON		10e-20				/* A entry tolerance */
-#define COL_LEN		30000				/* A column num of non-zero entries TODO hard-coded */
+#define COL_LEN		60000				/* A column num of non-zero entries TODO hard-coded */
 #define min(a,b)	((a) < (b) ? (a) : (b))
 #define max(a,b)	((a) > (b) ? (a) : (b))
 #define clip(a,b,c)	(min(max((a), (b)), (c)))
@@ -32,19 +32,22 @@ struct GeomInfo
 	float r_si;		/* (mm) source to iso */
 	float r_sd;		/* (mm) source to detector */
 	float u;		/* pitch, rows per rotation */
-	float beta0;		/* (rad) initial view angle */
+	float zs_0;		/* X-ray source initial z position (mm)*/
 	float Del_beta;	/* (rad) view angle spacing */
 	float Del_alphac;	/* (rad) detector angle spacing in channel direction */
 	float del_alphac;	/* (rad) sampling offset in channel direction */
 	float Del_dr;		/* (mm) detector spacing in row direction */
+	float offset_dr; 	/* (mm) detector offset in row direction */
 	float fov;		/* diameter of circular field of view */
 	float lambda0;		/* emission photon rate, used to calculate D, if lambda0 = 0, D = I */
 	float evar;		/* electronic noise variance */
-	char sinoFile[100];
-	char doseFile[100];
-	char offsetFile[100];
-	char detectorsFile[100];
-
+	char sinoFile[200];
+	char wghtFile[200];
+	char doseFile[200];
+	char offsetFile[200];
+	char detectorsFile[200];
+	char viewAnglesList[200];
+	char zPositionList[200];
 	/* -------------------------------------------- */
 	/*		PRECOMPUTED PARAMETERS		*/
 	/* -------------------------------------------- */
@@ -54,6 +57,8 @@ struct GeomInfo
 	float detr;		/* (mm) width of detector array in row direction, = Nr*Del_dr */ 
 	float half_detr;	/* (mm) half width of detector array in row direction, = (Nr-1)*Del_dr/2 */
 	float cone_zbuffer;	/* sjk: (mm) voxels w/ z outsize zs+/-cone_zbuffer will not fall within cone, =detr*(r_si+fov/2)/(2*r_sd) */
+	int num_focal_spots;
+	int num_sources;
 };
 
 struct Sinogram
@@ -106,14 +111,18 @@ struct SourceLocInfo		/* indepenedent of (x,y,z) */
 	ENTRY *zs;		/* z coord. of the source, zs[iv], 0 <= iv < Nv */
 };
 
+
 struct ViewXYInfo		/* depend on (x,y), independent of z */
 {
-	CHANNEL	*ic_start;	/* ic_start[iv], 0 <= iv < Nv */
-	PROCHANNEL *ic_num;	/* ic_num[iv], 0 <= iv < Nv */
-	ENTRY *Mag;		/* Mag[iv], 0 <= iv < Nv */
-	ENTRY *Wr;		/* Wr[iv], 0 <= iv < Nv */
-	ENTRY **B;		/* B[iv][p], 0 <= iv < Nv, 0 <= p < ic_num[iv] */
+	CHANNEL	***ic_start;	/* ic_start[iv], 0 <= iv < Nv */
+	PROCHANNEL ***ic_num;	/* ic_num[iv], 0 <= iv < Nv */
+	unsigned char ***Mag;		/* Mag[iv], 0 <= iv < Nv */
+	ENTRY *Mag_MaxPointer;
+	//ENTRY ***Wr;		/* Wr[iv], 0 <= iv < Nv */
+	unsigned char ****B;		/* B[iv][p], 0 <= iv < Nv, 0 <= p < ic_num[iv] */
+	ENTRY *B_MaxPointer;
 };
+
 
 struct ViewXYZInfo		/* depend on (x,y,z) */
 {
@@ -142,8 +151,14 @@ struct PriorInfo
 	ETYPE est;		/* estimation type */
 	float q;		/* q-GMMRF q */
 	float p;		/* q-GMMRF p */
-	float c;		/* q-GMMRF c */
-	float sigma;		/* q-GMMRF sigma */
+	float T;		/* q-GMMRF T */
+	float SigmaX;		/* q-GMMRF SigmaX */
+};
+
+struct CEInfo
+{
+	float SigmaLambda;	/* Consensus Equilibrium SigmaLambda */
+	float consensus_rho;	/* Consensus Rho */
 };
 
 

@@ -25,7 +25,7 @@ void createSourceLocInfo(
 
 void compSourceLocInfo(
 	struct SourceLocInfo *source_loc_info,
-	struct GeomInfo *geom_info);
+	struct GeomInfo *geom_info,int myid, int total_nodes);
 
 void freeSourceLocInfo(struct SourceLocInfo *source_loc_info);
 
@@ -33,7 +33,24 @@ void createViewXYInfo(
 	struct ViewXYInfo *view_xy_info,
 	struct GeomInfo *gemo_info);
 
+void createViewXYInfo_stored(
+	struct ViewXYInfo *view_xy_info,
+	struct GeomInfo *geom_info, struct ImgInfo * img_info,char **recon_mask);
+
+void compViewXYInfo_OnTheFly(
+	int jx,
+	int jy,
+	float x,
+	float y,
+	struct ViewXYInfo *view_xy_info,
+	struct GeomInfo *geom_info,
+	struct ImgInfo *img_info,
+	struct SourceLocInfo *source_loc_info);
+
+
 void compViewXYInfo(
+	int jx,
+	int jy,
 	float x,
 	float y,
 	struct ViewXYInfo *view_xy_info,
@@ -49,17 +66,29 @@ void freeViewXYInfo(
 	struct ViewXYInfo *view_xy_info,
 	struct GeomInfo *geom_info);
 
+
+void freeViewXYInfo_stored(
+	struct ViewXYInfo *view_xy_info,struct GeomInfo *geom_info,
+	struct ImgInfo *img_info,char ** recon_mask);
+
+
+
 void createViewXYZInfo(
 	struct ViewXYZInfo *view_xyz_info,
 	struct GeomInfo *geom_info);
 
+
 void compViewXYZInfo(
+	int jx,
+	int jy,
+	int jz,
 	float z,
 	struct ViewXYZInfo *view_xyz_info,
 	struct GeomInfo *geom_info,
 	struct ImgInfo *img_info,
 	struct SourceLocInfo *source_loc_info,
 	struct ViewXYInfo *view_xy_info);
+
 
 void freeViewXYZInfo(struct ViewXYZInfo *view_xyz_info);
 
@@ -69,15 +98,11 @@ void increaseAColLength(struct ACol *A_col);  /* sjk */
 
 void freeACol(struct ACol *A_col);
 
-void compAColxyz(
-	int jjx,
-	int jjy,
-	int jjz,
-	struct GeomInfo *geom_info,
-	struct ImgInfo *img_info,
-	struct ACol *col_xyz);
 
 void compAColxyzOnFly(
+	int jx,
+	int jy,
+	int jz,
 	float x,
 	float y,
 	float z,
@@ -85,10 +110,15 @@ void compAColxyzOnFly(
 	struct SourceLocInfo *source_loc_info,
 	struct ViewXYInfo *view_xy_info,
 	struct ViewXYZInfo *view_xyz_info,
-	struct ACol *A_col);
+	struct ACol *A_col,struct ImgInfo *img_info);
 
 /*void forwardProject(ENTRY *AX, ENTRY *X, char **recon_mask, struct GeomInfo *geom_info, struct ImgInfo *img_info);*/
-void forwardProject(ENTRY *AX, ENTRY *X, unsigned short *AX_mask, char **recon_mask, struct GeomInfo *geom_info, struct ImgInfo *img_info);
+
+
+void metal_forward(ENTRY *e, ENTRY *X, char **recon_mask, struct GeomInfo *geom_info, struct ImgInfo *img_info,struct ViewXYInfo *view_xy_info, int myid,int total_nodes);
+
+
+void forwardProject(ENTRY *e, ENTRY *X, ENTRY *Y,  char **recon_mask, struct GeomInfo *geom_info, struct ImgInfo *img_info,struct ViewXYInfo *view_xy_info,int myid,int total_nodes);
 
 /* For parallel computing */
 /*struct paraForwardProjectData
@@ -105,11 +135,11 @@ void forwardProject(ENTRY *AX, ENTRY *X, unsigned short *AX_mask, char **recon_m
 };
 */
 
-void paraForwardProject(struct GeomInfo *geom_info,struct ImgInfo *img_info,struct SourceLocInfo *source_loc_info,ENTRY *X,ENTRY *AX,unsigned short *AX_mask,char **recon_mask);
+void paraForwardProject(struct GeomInfo *geom_info,struct ImgInfo *img_info,struct SourceLocInfo *source_loc_info,ENTRY *X,ENTRY *e,char **recon_mask,struct ViewXYInfo *view_xy_info);
 
 void serialForwardProject(ENTRY *AX, ENTRY *X, struct GeomInfo *geom_info, struct ImgInfo *img_info);
 
-void backProject(ENTRY *AX, ENTRY *X, struct GeomInfo *geom_info, struct ImgInfo *img_info);
+void backProject(ENTRY *AX, ENTRY *X, struct GeomInfo *geom_info, struct ImgInfo *img_info,int myid);
 
 void *paraBackProject(struct GeomInfo *geom_info,struct ImgInfo *img_info,struct SourceLocInfo *source_loc_info,ENTRY *X,ENTRY *AX);
 

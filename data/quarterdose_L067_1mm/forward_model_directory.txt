@@ -1,0 +1,2 @@
+../data/quarterdose_L067_1mm/focal1/geom_recon.txt
+../data/quarterdose_L067_1mm/focal2/geom_recon.txt

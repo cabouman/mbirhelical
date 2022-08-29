@@ -254,11 +254,11 @@ void createViewXYInfo_stored(
 
 		for (int jy=0;jy<img_info->Ny;jy++){
 		if(recon_mask[jx][jy]){
-			view_xy_info->ic_start[jx][jy]=(CHANNEL *)malloc(sizeof(CHANNEL)*geom_info->Nv);
-			view_xy_info->ic_num[jx][jy]=(PROCHANNEL *)malloc(sizeof(PROCHANNEL)*geom_info->Nv);
-			view_xy_info->Mag[jx][jy] = (unsigned char *)malloc(sizeof(unsigned char)*geom_info->Nv);
+			view_xy_info->ic_start[jx][jy]=(CHANNEL *)malloc(sizeof(CHANNEL)*geom_info->Nvpr);
+			view_xy_info->ic_num[jx][jy]=(PROCHANNEL *)malloc(sizeof(PROCHANNEL)*geom_info->Nvpr);
+			view_xy_info->Mag[jx][jy] = (unsigned char *)malloc(sizeof(unsigned char)*geom_info->Nvpr);
 			//view_xy_info->Wr[jx][jy] = (ENTRY *)malloc(sizeof(ENTRY)*geom_info->Nv);
-			view_xy_info->B[jx][jy] = (unsigned char **)malloc(sizeof(unsigned char*)*geom_info->Nv);
+			view_xy_info->B[jx][jy] = (unsigned char **)malloc(sizeof(unsigned char*)*geom_info->Nvpr);
 		}
 		}
 	}
@@ -390,10 +390,10 @@ void compViewXYInfo(
 	PROCHANNEL p;
 	int ic;			/* channel index */
 
-	ENTRY *temp_Mag = (ENTRY *)malloc(sizeof(ENTRY)*geom_info->Nv);
+	ENTRY *temp_Mag = (ENTRY *)malloc(sizeof(ENTRY)*geom_info->Nvpr);
 	
 	ENTRY max_num=0;
-	for (iv = 0; iv < geom_info->Nv; iv++)
+	for (iv = 0; iv < geom_info->Nvpr; iv++)
 	{
 
 		r_sv = sqrt((source_loc_info->xs[iv]-x)*(source_loc_info->xs[iv]-x) + (source_loc_info->ys[iv]-y)*(source_loc_info->ys[iv]-y));
@@ -406,7 +406,7 @@ void compViewXYInfo(
 
 	view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]=max_num;
 
-	for (iv = 0; iv < geom_info->Nv; iv++){
+	for (iv = 0; iv < geom_info->Nvpr; iv++){
        		view_xy_info->Mag[jx][jy][iv] = (unsigned char)((temp_Mag[iv])/max_num*255+0.5);
 	}
 	
@@ -414,10 +414,10 @@ void compViewXYInfo(
 	free((void *)temp_Mag);
 
 
-	ENTRY **temp_B = (ENTRY **)malloc(sizeof(ENTRY *)*geom_info->Nv);
+	ENTRY **temp_B = (ENTRY **)malloc(sizeof(ENTRY *)*geom_info->Nvpr);
 
 
-	for (iv = 0; iv < geom_info->Nv; iv++)
+	for (iv = 0; iv < geom_info->Nvpr; iv++)
 	{
 		theta = atan2((source_loc_info->ys[iv]-y), (source_loc_info->xs[iv]-x));
 		
@@ -480,7 +480,7 @@ void compViewXYInfo(
 	}
 	
 	max_num=0;
-	for (iv = 0; iv < geom_info->Nv; iv++)
+	for (iv = 0; iv < geom_info->Nvpr; iv++)
 	{
 		for (p=0;p<view_xy_info->ic_num[jx][jy][iv];p++){
 			if(temp_B[iv][p]>max_num)
@@ -490,7 +490,7 @@ void compViewXYInfo(
 	
 	view_xy_info->B_MaxPointer[jx*img_info->Ny+jy]=max_num;
 
-	for (iv = 0; iv < geom_info->Nv; iv++)
+	for (iv = 0; iv < geom_info->Nvpr; iv++)
 	{
 		for (p=0;p<view_xy_info->ic_num[jx][jy][iv];p++){
 			view_xy_info->B[jx][jy][iv][p] =  (unsigned char)((temp_B[iv][p])/max_num*255+0.5);
@@ -499,7 +499,7 @@ void compViewXYInfo(
 	}
 
 
-	for (iv = 0; iv < geom_info->Nv; iv++)
+	for (iv = 0; iv < geom_info->Nvpr; iv++)
 	{
 		free((void *)temp_B[iv]);
 	}
@@ -519,7 +519,7 @@ void freeViewXYInfo_stored(
 				free(view_xy_info->ic_num[jx][jy]);
 				free(view_xy_info->Mag[jx][jy]);
 				//free(view_xy_info->Wr[jx][jy]);
-				for (int iv = 0; iv < geom_info->Nv; iv++)
+				for (int iv = 0; iv < geom_info->Nvpr; iv++)
 				{
 					free(view_xy_info->B[jx][jy][iv]);
 				}
@@ -624,8 +624,8 @@ void compViewXYZInfo(
 	/* sjk: moved this block down so that we don't have to go through all views */
 	for (iv = view_xyz_info->iv_start; iv <= (view_xyz_info->iv_start + view_xyz_info->iv_num-1); iv++)   /* sjk */
 	{
-		d_min = (geom_info->half_detr+geom_info->Del_dr/2.0-view_xy_info->Mag[jx][jy][iv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num*(z-source_loc_info->zs[iv]+img_info->Del_z/2.0));
-		d_max = (geom_info->half_detr+geom_info->Del_dr/2.0-view_xy_info->Mag[jx][jy][iv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num*(z-source_loc_info->zs[iv]-img_info->Del_z/2.0));
+		d_min = (geom_info->half_detr+geom_info->Del_dr/2.0-view_xy_info->Mag[jx][jy][iv%geom_info->Nvpr]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num*(z-source_loc_info->zs[iv]+img_info->Del_z/2.0));
+		d_max = (geom_info->half_detr+geom_info->Del_dr/2.0-view_xy_info->Mag[jx][jy][iv%geom_info->Nvpr]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num*(z-source_loc_info->zs[iv]-img_info->Del_z/2.0));
 
 		if (d_max < 0 || d_min > geom_info->detr)
 		{
@@ -721,16 +721,17 @@ void compAColxyzOnFly(
 		float C_multiply = (sqrt((source_loc_info->xs[iv]-x)*(source_loc_info->xs[iv]-x) + (source_loc_info->ys[iv]-y)*(source_loc_info->ys[iv]-y) + (source_loc_info->zs[iv]-z)*(source_loc_info->zs[iv]-z)));
 		float C_divide = (sqrt((source_loc_info->xs[iv]-x)*(source_loc_info->xs[iv]-x) + (source_loc_info->ys[iv]-y)*(source_loc_info->ys[iv]-y))*geom_info->Del_dr);
 
+		int iv_equiv= iv%geom_info->Nvpr;
 	
-		for (p = 0; p < view_xy_info->ic_num[jx][jy][iv]; p++)	/* channel loop */
+		for (p = 0; p < view_xy_info->ic_num[jx][jy][iv_equiv]; p++)	/* channel loop */
 		{
-			ic = view_xy_info->ic_start[jx][jy][iv] + p;
+			ic = view_xy_info->ic_start[jx][jy][iv_equiv] + p;
 			for (q = 0; q < view_xyz_info->ir_num[iv]; q++)	/* row loop */
 			{
 				ir = view_xyz_info->ir_start[iv] + q;
 				/* ATTENTION!! CHANGE SIGN HERE! ROW 0 IS CLOSEST */
-				del_r = view_xy_info->Mag[jx][jy][iv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num*(z-source_loc_info->zs[iv]) + ir*geom_info->Del_dr - geom_info->half_detr;
-				Cij = clip(0.0, (((img_info->Del_z*view_xy_info->Mag[jx][jy][iv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num+geom_info->Del_dr)/2.0)-fabs(del_r)), min(img_info->Del_z*view_xy_info->Mag[jx][jy][iv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num, geom_info->Del_dr));
+				del_r = view_xy_info->Mag[jx][jy][iv_equiv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num*(z-source_loc_info->zs[iv]) + ir*geom_info->Del_dr - geom_info->half_detr;
+				Cij = clip(0.0, (((img_info->Del_z*view_xy_info->Mag[jx][jy][iv_equiv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num+geom_info->Del_dr)/2.0)-fabs(del_r)), min(img_info->Del_z*view_xy_info->Mag[jx][jy][iv_equiv]*view_xy_info->Mag_MaxPointer[jx*img_info->Ny+jy]*inverse_num, geom_info->Del_dr));
 				Cij *= C_multiply;
 				Cij /= C_divide;
 
@@ -743,7 +744,7 @@ void compAColxyzOnFly(
 
 
 
-				Atmp = view_xy_info->B[jx][jy][iv][p]*view_xy_info->B_MaxPointer[jx*img_info->Ny+jy]*inverse_num*Cij;
+				Atmp = view_xy_info->B[jx][jy][iv_equiv][p]*view_xy_info->B_MaxPointer[jx*img_info->Ny+jy]*inverse_num*Cij;
 				if (Atmp > EPSILON)	/* non-zero entry */
 				{
 					A_col->index[A_col->n_index] = iv*geom_info->Nc*geom_info->Nr + ic*geom_info->Nr + ir;

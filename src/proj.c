@@ -111,8 +111,8 @@ void createSourceLocInfo(
 	struct GeomInfo *geom_info)
 {
 	source_loc_info->beta = (ENTRY *)get_spc(geom_info->Nv, sizeof(ENTRY));
-	source_loc_info->xs = (ENTRY *)get_spc(geom_info->Nv, sizeof(ENTRY));
-	source_loc_info->ys = (ENTRY *)get_spc(geom_info->Nv, sizeof(ENTRY));
+	source_loc_info->xs = (ENTRY *)get_spc(geom_info->Nvpr, sizeof(ENTRY));
+	source_loc_info->ys = (ENTRY *)get_spc(geom_info->Nvpr, sizeof(ENTRY));
 	source_loc_info->zs = (ENTRY *)get_spc(geom_info->Nv, sizeof(ENTRY));
 }
 
@@ -189,7 +189,7 @@ void compSourceLocInfo(
 
 
 
-	for (iv = 0; iv < geom_info->Nv; iv++)
+	for (iv = 0; iv < geom_info->Nvpr; iv++)
 	{
 		source_loc_info->xs[iv] = (geom_info->r_si)*cos(source_loc_info->beta[iv]);
 		source_loc_info->ys[iv] = (geom_info->r_si)*sin(source_loc_info->beta[iv]);
@@ -718,10 +718,12 @@ void compAColxyzOnFly(
 	for (l = 0; l < view_xyz_info->iv_num; l++)	/* view loop */
 	{
 		iv = view_xyz_info->iv_start + l;
-		float C_multiply = (sqrt((source_loc_info->xs[iv]-x)*(source_loc_info->xs[iv]-x) + (source_loc_info->ys[iv]-y)*(source_loc_info->ys[iv]-y) + (source_loc_info->zs[iv]-z)*(source_loc_info->zs[iv]-z)));
-		float C_divide = (sqrt((source_loc_info->xs[iv]-x)*(source_loc_info->xs[iv]-x) + (source_loc_info->ys[iv]-y)*(source_loc_info->ys[iv]-y))*geom_info->Del_dr);
 
 		int iv_equiv= iv%geom_info->Nvpr;
+
+		float C_multiply = (sqrt((source_loc_info->xs[iv_equiv]-x)*(source_loc_info->xs[iv_equiv]-x) + (source_loc_info->ys[iv_equiv]-y)*(source_loc_info->ys[iv_equiv]-y) + (source_loc_info->zs[iv]-z)*(source_loc_info->zs[iv]-z)));
+		float C_divide = (sqrt((source_loc_info->xs[iv_equiv]-x)*(source_loc_info->xs[iv_equiv]-x) + (source_loc_info->ys[iv_equiv]-y)*(source_loc_info->ys[iv_equiv]-y))*geom_info->Del_dr);
+
 	
 		for (p = 0; p < view_xy_info->ic_num[jx][jy][iv_equiv]; p++)	/* channel loop */
 		{

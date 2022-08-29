@@ -794,7 +794,6 @@ float ProximalMapCostFunction3D_Likelihood(
 	struct ImgInfo *img_info,
 	float SigmaLambda,int myid)
 {
-	int i;
 	int j, jx, jy, jz;
 	int Nvcr;
 	int imglen = img_info->Nx * img_info->Ny * img_info->Nz;
@@ -806,8 +805,10 @@ float ProximalMapCostFunction3D_Likelihood(
 	/* negative log likelihood term */
 	nloglike = 0.0;
 	penalizer= 0.0;
-	Nvcr = (geom_info->Nv)*(geom_info->Nc)*(geom_info->Nr);  
-	for (i = 0; i < Nvcr; i++)
+	Nvcr = (geom_info->Nv)*(geom_info->Nc)*(geom_info->Nr); 
+
+	#pragma omp parallel for reduction(+:nloglike) private(d) 
+	for (int i = 0; i < Nvcr; i++)
 	{
 		if (geom_info->lambda0 == 0.0)
 			nloglike += (e[i])*(e[i]);
@@ -1456,14 +1457,14 @@ void ICDReconstruct(
 
 		float cost = Consensus_Cost(consensus_X,image,Vmean,NUMPROCS,DE_id,DE_numprocs,DE_comm);
 		
-		//nlogpost = ProximalMapCostFunction3D_Likelihood(X,e,D,TildeV->img,prior_info,&(sinogram->geom_info),&(image->img_info),ce_info->SigmaLambda,myid);
+		nlogpost = ProximalMapCostFunction3D_Likelihood(X,e,D,TildeV->img,prior_info,&(sinogram->geom_info),&(image->img_info),ce_info->SigmaLambda,myid);
 
 		if(DE_id==0 && PnP_mode==1){
-			fprintf(stdout,"myid %d: it %d cost %f prior %f\n",myid,it,cost,ProximalMapCostFunction3D_Prior(consensus_X,prior_info,myid));
+			fprintf(stdout,"myid %d: it %d consensus_cost %f forward %f prior %f\n",myid,it,cost,nlogpost,ProximalMapCostFunction3D_Prior(consensus_X,prior_info,myid));
 			fflush(stdout);
 		}
 		else if(DE_id==0 && PnP_mode==0){
-			fprintf(stdout,"myid %d: it %d cost %f prior %f\n",myid,it,cost,ProximalMapCostFunction3D_Prior(Vmean,prior_info,myid));
+			fprintf(stdout,"myid %d: it %d consensus_cost %f forward %f prior %f\n",myid,it,cost,nlogpost,ProximalMapCostFunction3D_Prior(Vmean,prior_info,myid));
 			fflush(stdout);
 		}
 

@@ -510,6 +510,7 @@ void compAColxyzOnFly(
 }
 
 void forwardProject(ENTRY *AX, ENTRY *X, unsigned short *AX_mask, char **recon_mask, struct GeomInfo *geom_info, struct ImgInfo *img_info)
+// Computes the error sinogram update e = Y - AX
 {
 	int i, t;
 
@@ -548,6 +549,8 @@ void forwardProject(ENTRY *AX, ENTRY *X, unsigned short *AX_mask, char **recon_m
 }
 
 void paraForwardProject(struct GeomInfo *geom_info,struct ImgInfo *img_info,struct SourceLocInfo *source_loc_info,ENTRY *X,ENTRY *AX,unsigned short *AX_mask,char **recon_mask)
+// Computes the forward projection of X and returns in e
+// A matrix is recomputed column-by-column every call
 {
 	int tid = omp_get_thread_num();
 

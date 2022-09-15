@@ -75,7 +75,7 @@ def create_ball(fname,N):
 
 if __name__=='__main__':
     # fname = './data/phantom_ball.npy'  #numpy binary file
-    fname = './data/phantom_cylinder.npy'  #numpy binary file
+    fname = '../data/cylinder_phantom.npy'  #numpy binary file
     N = 100  #NxNxN phantom
     # create_ball(fname,N)
     create_cyliner(fname,N)

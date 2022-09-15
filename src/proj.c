@@ -795,7 +795,8 @@ void metal_forward(ENTRY *e, ENTRY *X, char **recon_mask, struct GeomInfo *geom_
 
 
 void forwardProject(ENTRY *e, ENTRY *X, ENTRY *Y, char **recon_mask, struct GeomInfo *geom_info, struct ImgInfo *img_info,struct ViewXYInfo *view_xy_info, int myid,int total_nodes)
-{
+// Computes the error sinogram update e = Y - AX
+        {
 	int i, t;
 
 	struct SourceLocInfo source_loc_info;
@@ -826,7 +827,9 @@ void forwardProject(ENTRY *e, ENTRY *X, ENTRY *Y, char **recon_mask, struct Geom
 }
 
 void paraForwardProject(struct GeomInfo *geom_info,struct ImgInfo *img_info,struct SourceLocInfo *source_loc_info,ENTRY *X,ENTRY *e,char **recon_mask,	struct ViewXYInfo *view_xy_info)
-{
+// Computes the forward projection of X and returns in e
+// A matrix is recomputed column-by-column every call
+        {
 
 	int offset1,offset2;  /* sjk */
 	int jx, jy, jz,  Nyz;

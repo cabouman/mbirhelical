@@ -15,6 +15,8 @@ void error(char *name)
 	fprintf(stdout, "usage: %s [image param] [geom param]\n", name);
 }
 
+// Update to use the correct signature for fowardProject, and call it with Y=0.  The output will be -sinogram.
+// We can use this to project a phantom to give a sinogram.
 int main(int argc, char *argv[])
 {
 	struct timeval start, end;

@@ -24,7 +24,12 @@ int main(int argc, char *argv[])
 	struct Image image;
 	struct Sinogram sinogram;
 	char **recon_mask;
-	unsigned short *AX_mask=NULL;
+	// unsigned short *AX_mask=NULL;
+    int total_nodes=1;  // TODO:  include cluster info in configuration files
+    int myid=0;
+    int NUMPROCS=1;
+	ENTRY *e;
+
 	int jx,jy;
 
 	/* check arguments */
@@ -37,14 +42,16 @@ int main(int argc, char *argv[])
 	/* start timer */
 	gettimeofday(&start, NULL);
 
+    e = (ENTRY *)  get_spc((sinogram.geom_info.Nv)*(sinogram.geom_info.Nc)*(sinogram.geom_info.Nr), sizeof(ENTRY));
+
 	/* read image info */
 	/* read image data, memory allocation for data array included */
 	readImgInfo(argv[2], &(image.img_info));
 	printImgInfo(&(image.img_info));
-	readImage_short(image.img_info.imgFile, &image);
+	readImage(image.img_info.imgFile, &image);
 
 	/* read geomtry info */
-	readGeomInfo(argv[1], &(sinogram.geom_info));
+	readGeomInfo(argv[1], total_nodes, &(sinogram.geom_info));
 	printGeomInfo(&(sinogram.geom_info));
 
 	/* fill in intermediate variables */
@@ -61,8 +68,10 @@ int main(int argc, char *argv[])
 	for(jy=0; jy<image.img_info.Ny; jy++)
 		recon_mask[jx][jy]=1;
 	/*forwardProject(sinogram.sino, image.img, recon_mask, &(sinogram.geom_info), &(image.img_info));*/
-	forwardProject(sinogram.sino, image.img, AX_mask, recon_mask, &(sinogram.geom_info), &(image.img_info));
-
+	struct ViewXYInfo stored_view_xy_info;
+    forwardProject(e, image.img, sinogram.sino, recon_mask, &(sinogram.geom_info), &(image.img_info), &stored_view_xy_info, myid,NUMPROCS);
+//	forwardProject(e, X, Y, recon_mask, &(sinogram->geom_info), &(image->img_info),&stored_view_xy_info,myid,NUMPROCS);
+// void forwardProject(ENTRY *e, ENTRY *X, ENTRY *Y, char **recon_mask, struct GeomInfo *geom_info, struct ImgInfo *img_info,struct ViewXYInfo *view_xy_info, int myid,int total_nodes)
 	/* add noise */
 	if (sinogram.geom_info.lambda0 > 0.0)
 	{

@@ -19,5 +19,5 @@ ct: ct.o $(OBJ)
 	$(CC) $(CFLAGS) -o ct ct.o $(OBJ) -lm
 
 fpro: fpro.o $(OBJ)
-	$(CC) $(CFLAGS) -o ct ct.o $(OBJ) -lm
+	$(CC) $(CFLAGS) -o fpro fpro.o $(OBJ) -lm
 

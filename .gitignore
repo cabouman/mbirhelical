@@ -42,3 +42,5 @@ docs/build/
 *.exe
 *.out
 *.app
+ct
+fpro

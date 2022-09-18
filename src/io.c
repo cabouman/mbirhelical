@@ -54,6 +54,7 @@ void readImgInfo(char *fname, struct ImgInfo *img_info)
 	fgets(tag, 100, fp);
 	fscanf(fp, "%s\n", img_info->maskFile);
 
+
 	fclose(fp);
 }
 
@@ -89,6 +90,8 @@ void writeImgInfo(char *fname, struct ImgInfo *img_info)
 	fprintf(fp, "%f\n\n", img_info->rI);
 	fprintf(fp, "initial reconstruction image location\n");
 	fprintf(fp, "%s\n", img_info->imgFile);
+    fprintf(fp, "mask file location\n");
+    fprintf(fp, "%s\n", img_info->maskFile);
 
 	fclose(fp);
 

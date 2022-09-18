@@ -42,16 +42,14 @@ int main(int argc, char *argv[])
 	/* start timer */
 	gettimeofday(&start, NULL);
 
-    e = (ENTRY *)  get_spc((sinogram.geom_info.Nv)*(sinogram.geom_info.Nc)*(sinogram.geom_info.Nr), sizeof(ENTRY));
-
 	/* read image info */
 	/* read image data, memory allocation for data array included */
-	readImgInfo(argv[2], &(image.img_info));
+	readImgInfo(argv[1], &(image.img_info));
 	printImgInfo(&(image.img_info));
 	readImage(image.img_info.imgFile, &image);
 
 	/* read geomtry info */
-	readGeomInfo(argv[1], total_nodes, &(sinogram.geom_info));
+	readGeomInfo(argv[2], total_nodes, &(sinogram.geom_info));
 	printGeomInfo(&(sinogram.geom_info));
 
 	/* fill in intermediate variables */
@@ -61,6 +59,7 @@ int main(int argc, char *argv[])
 
 	/* allocate memory for sinogram */
 	createSinogram(&sinogram);
+    e = (ENTRY *)  get_spc((sinogram.geom_info.Nv)*(sinogram.geom_info.Nc)*(sinogram.geom_info.Nr), sizeof(ENTRY));
 
 	/* forward projection */
 	createReconMask(&recon_mask, &(image.img_info));

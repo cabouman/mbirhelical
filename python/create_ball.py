@@ -17,13 +17,13 @@ def create_cone(r, N):
         dictionary of image info
     """
 
-    x0 = int(N / 2)
+    x0 = int(N / 3)
     y0 = int(N / 2)
     # z0 = int(N/2) #zshift + 0.0
     Nx = N
     Ny = N + 1
     Nz = N + 2
-    img = 0.0 * np.ones((Nx, Ny, Nz), dtype=np.float32)
+    img = np.zeros((Nx, Ny, Nz), dtype=np.float32)
     _x = np.arange(img.shape[0])
     _y = np.arange(img.shape[1])
     [X, Y] = np.meshgrid(_x, _y, indexing='ij')  # N*N*N grid
@@ -35,14 +35,16 @@ def create_cone(r, N):
         mask = dist_from_center <= radius
         img[mask, j] = 1.0
 
-    xc = 0.0
-    yc = 0.0
+    img[0,0,0:10] = 1.0
+
+    xc = N / 2
+    yc = N / 2
     zc = N / 2
     Del_xy = 1.0
     Del_z = 1.0
 
     res = [Del_xy, Del_xy, Del_z]
-    loc = [xc - (N - 1) * Del_xy / 2, yc - (N - 1) * Del_xy / 2, zc - (N - 1) * Del_z / 2]
+    loc = [xc, yc, zc]
     # img=1000*img/(.02-.0000226)
     image_info = hio.create_image_info(img, res, loc)
     return img, image_info

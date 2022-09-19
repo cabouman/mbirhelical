@@ -58,9 +58,6 @@ int main(int argc, char *argv[])
 	readGeomInfo(argv[2], total_nodes, &(sinogram.geom_info));
 	printGeomInfo(&(sinogram.geom_info));
 
-    for (int j=0; j<10; j++) {
-        fprintf(stdout, "%f\n", image.img[j]);
-    }
 
 	/* fill in intermediate variables */
 	fillImgInfo(&(image.img_info));
@@ -78,6 +75,7 @@ int main(int argc, char *argv[])
 		recon_mask[jx][jy]=1;
 	/*forwardProject(sinogram.sino, image.img, recon_mask, &(sinogram.geom_info), &(image.img_info));*/
 	struct ViewXYInfo stored_view_xy_info;
+
     forwardProject(e, image.img, sinogram.sino, recon_mask, &(sinogram.geom_info), &(image.img_info), &stored_view_xy_info, myid, numprocs);
 //	forwardProject(e, X, Y, recon_mask, &(sinogram->geom_info), &(image->img_info),&stored_view_xy_info,myid,numprocs);
 // void forwardProject(ENTRY *e, ENTRY *X, ENTRY *Y, char **recon_mask, struct GeomInfo *geom_info, struct ImgInfo *img_info,struct ViewXYInfo *view_xy_info, int myid,int total_nodes)
@@ -87,10 +85,13 @@ int main(int argc, char *argv[])
 		srandom2(1);
 		addNoise(sinogram.sino, sinogram.geom_info.lambda0, sinogram.geom_info.Nv*sinogram.geom_info.Nc*sinogram.geom_info.Nr);
 	}
-
+    // Take negative of error sinogram to get projected sinogram
+    for (int i=0; i<sinogram.geom_info.Nr * sinogram.geom_info.Nc * sinogram.geom_info.Nv; i++) {
+        e[i] = -e[i];
+    }
 	/* write sinogram */
 	/*writeSinogram(sinogram.geom_info.sinoFile, &sinogram);*/
-        writeSinogram_float(sinogram.geom_info.sinoFile, sinogram.sino,
+    writeSinogram_float(sinogram.geom_info.sinoFile, e,
                      sinogram.geom_info.Nr, sinogram.geom_info.Nc, sinogram.geom_info.Nv);
 
 	/* record running time */

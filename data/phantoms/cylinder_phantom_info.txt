@@ -1,0 +1,36 @@
+number of voxels in x
+10
+
+number of voxels in y
+11
+
+number of voxels in z (good slices)
+12
+
+number of voxels in z (total)
+12
+
+x coordinate of the center voxel (mm)
+-4.500000
+
+y coordinate of the center voxel (mm)
+-4.500000
+
+z coordinate of the center voxel (mm)
+0.500000
+
+voxel spacing in xy (mm)
+1.000000
+
+voxel spacing in z (mm)
+1.000000
+
+radius of the reconstruction mask (mm)
+5.000000
+
+initial reconstruction image location
+cylinder_phantom.raw
+
+mask file location
+NA
+

@@ -47,10 +47,10 @@ electronic noise variance (0 for noiseless)
 0.3
 
 sinogram file location
-/global/cscratch1/sd/wang1698/AAPM_2022/preprocess/dcm000_proj.sino
+cylinder_proj.sino
 
 weight file location
-/global/cscratch1/sd/wang1698/AAPM_2022/preprocess/dcm000_weight.wght
+cylinder_weight.wght
 
 dosage file location
 NA

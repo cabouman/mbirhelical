@@ -19,17 +19,22 @@ def create_cylinder(r, N):
     x0 = int(N/2)
     y0 = int(N/2)
     # z0 = int(N/2) #zshift + 0.0
-    img = 0.0002*np.ones((N,N,N))
-    _x = np.arange(N)
-    _y = np.arange(N)
-    _z = np.arange(N)
-    [X,Y,Z] = np.meshgrid(_x,_y,_z) #N*N*N grid
+    Nx = N
+    Ny = N+1
+    Nz = N+2
+    img = 0.0*np.ones((Nx,Ny,Nz), dtype=np.float64)
+    _x = np.arange(img.shape[0])
+    _y = np.arange(img.shape[1])
+    _z = np.arange(img.shape[2])
+    [X,Y,Z] = np.meshgrid(_x,_y,_z, indexing='ij') #N*N*N grid
 
     dist_from_center = np.sqrt((X-x0)**2 + (Y-y0)**2)
 
     mask = dist_from_center <=radius
-    img[mask] = 0.06
-
+    img[mask] = 1.0
+    # TODO:  convert back to cylinder
+    img = np.arange(Nx*Ny*Nz).reshape((Nx, Ny, Nz))
+    #img = 1.0543108*np.ones((Nx, Ny, Nz))
     xc = 0.0
     yc = 0.0
     zc = N/2
@@ -38,7 +43,7 @@ def create_cylinder(r, N):
 
     res=[Del_xy, Del_xy, Del_z]
     loc=[ xc-(N-1)*Del_xy/2,  yc-(N-1)*Del_xy/2, zc-(N-1)*Del_z/2 ]
-    img=1000*img/(.02-.0000226)
+    #img=1000*img/(.02-.0000226)
     image_info = hio.create_image_info(img, res, loc)
     return img, image_info
 

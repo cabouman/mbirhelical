@@ -524,8 +524,11 @@ void writeSinogram_float(char *fname, ENTRY *Y, int Nr, int Nc, int Nv)
                 fprintf(stderr, "ERROR in writeSinogram_float: can't open file %s\n", fname);
                 exit(1);
         }
-
-        fprintf(fp, "%d %d %d\n", Nr, Nc, Nv);
+        size_t lenstr = strlen(fname);
+        char* suffix = ".sino";
+        size_t lensuffix = strlen(suffix);
+        if (strcmp(fname + lenstr - lensuffix, suffix) == 0)
+            fprintf(fp, "%d %d %d\n", Nr, Nc, Nv);
         length=Nr*Nc*Nv;
 
         if( fwrite(Y,sizeof(ENTRY),length,fp) != length )

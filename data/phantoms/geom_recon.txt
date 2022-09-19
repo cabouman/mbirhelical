@@ -1,14 +1,14 @@
 number of rows
-20
+100
 
 number of channels
-20
+100
 
 number of views
-360
+200
 
 views per rotation
-40
+30
 
 src to iso (mm)
 575
@@ -41,13 +41,13 @@ diameter of field of view (mm)
 500
 
 initial photon counts (0 for noiseless)
-2.25
+0
 
 electronic noise variance (0 for noiseless)
-0.3
+0
 
 sinogram file location
-cylinder_proj.sino
+cylinder_proj.raw
 
 weight file location
 cylinder_weight.wght

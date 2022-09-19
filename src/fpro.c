@@ -9,6 +9,7 @@
 #include "randlib.h"
 #include "prepro.h"
 #include "allocate.h"
+#include "mpi.h"
 
 void error(char *name)
 {
@@ -27,8 +28,10 @@ int main(int argc, char *argv[])
 	// unsigned short *AX_mask=NULL;
     int total_nodes=1;  // TODO:  include cluster info in configuration files
     int myid=0;
-    int NUMPROCS=1;
-	ENTRY *e;
+    int numprocs=1;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &myid);	ENTRY *e;
 
 	int jx,jy;
 
@@ -55,6 +58,10 @@ int main(int argc, char *argv[])
 	readGeomInfo(argv[2], total_nodes, &(sinogram.geom_info));
 	printGeomInfo(&(sinogram.geom_info));
 
+    for (int j=0; j<10; j++) {
+        fprintf(stdout, "%f\n", image.img[j]);
+    }
+
 	/* fill in intermediate variables */
 	fillImgInfo(&(image.img_info));
 	fillGeomInfo(&(sinogram.geom_info));
@@ -71,8 +78,8 @@ int main(int argc, char *argv[])
 		recon_mask[jx][jy]=1;
 	/*forwardProject(sinogram.sino, image.img, recon_mask, &(sinogram.geom_info), &(image.img_info));*/
 	struct ViewXYInfo stored_view_xy_info;
-    forwardProject(e, image.img, sinogram.sino, recon_mask, &(sinogram.geom_info), &(image.img_info), &stored_view_xy_info, myid,NUMPROCS);
-//	forwardProject(e, X, Y, recon_mask, &(sinogram->geom_info), &(image->img_info),&stored_view_xy_info,myid,NUMPROCS);
+    forwardProject(e, image.img, sinogram.sino, recon_mask, &(sinogram.geom_info), &(image.img_info), &stored_view_xy_info, myid, numprocs);
+//	forwardProject(e, X, Y, recon_mask, &(sinogram->geom_info), &(image->img_info),&stored_view_xy_info,myid,numprocs);
 // void forwardProject(ENTRY *e, ENTRY *X, ENTRY *Y, char **recon_mask, struct GeomInfo *geom_info, struct ImgInfo *img_info,struct ViewXYInfo *view_xy_info, int myid,int total_nodes)
 	/* add noise */
 	if (sinogram.geom_info.lambda0 > 0.0)

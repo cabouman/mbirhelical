@@ -49,6 +49,9 @@ int main(int argc, char *argv[])
 	readImage(image.img_info.imgFile, &image);
 
 	/* read geomtry info */
+#   // TODO:  extend to more focal spots/sources
+    sinogram.geom_info.num_focal_spots = 1;
+    sinogram.geom_info.num_sources = 1;
 	readGeomInfo(argv[2], total_nodes, &(sinogram.geom_info));
 	printGeomInfo(&(sinogram.geom_info));
 

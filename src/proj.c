@@ -12,6 +12,10 @@
 
 void createSinogram(struct Sinogram *sinogram)
 {
+    sinogram->counts = NULL;
+    sinogram->dose = NULL;
+    sinogram->offset = NULL;
+    sinogram->D = NULL;
 	sinogram->sino = (ENTRY *)get_spc((sinogram->geom_info.Nr)*(sinogram->geom_info.Nc)*(sinogram->geom_info.Nv), sizeof(ENTRY));
 }
 
@@ -36,10 +40,10 @@ void freeSinogram(struct Sinogram *sinogram)
 	fprintf(stdout,"after free counts \n");
 	fflush(stdout);
  
-        if(sinogram->offset != NULL)
-		free(sinogram->offset);
-        if(sinogram->D != NULL)
-        	free(sinogram->D); 
+    if(sinogram->offset != NULL)
+    free(sinogram->offset);
+    if(sinogram->D != NULL)
+        free(sinogram->D);
 }
 
 void createImage(struct Image *image)
@@ -863,8 +867,8 @@ void paraForwardProject(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 
 				offset2=offset1+jy*img_info->Nz;
 
-				
-				#pragma omp parallel for
+
+                // #pragma omp parallel for
 				for (jz = 0; jz < img_info->Nz; jz++)
 				{
 
@@ -887,7 +891,7 @@ void paraForwardProject(struct GeomInfo *geom_info,struct ImgInfo *img_info,stru
 	
 						for (int r = 0; r < col_xyz.n_index; r++)
 						{
-							#pragma omp atomic
+                            // #pragma omp atomic
 							e[col_xyz.index[r]] += col_xyz.val[r]*X[indx];  
 						}
 						freeViewXYZInfo(&view_xyz_info);

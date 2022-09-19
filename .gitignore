@@ -42,4 +42,3 @@ docs/build/
 *.exe
 *.out
 *.app
-/bin

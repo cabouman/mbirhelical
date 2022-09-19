@@ -42,3 +42,8 @@ docs/build/
 *.exe
 *.out
 *.app
+
+# binaries
+*.raw
+*.mhimage
+*.sino

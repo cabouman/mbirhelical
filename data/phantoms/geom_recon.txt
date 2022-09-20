@@ -23,10 +23,10 @@ X-ray source initial z position (mm)
 0
 
 view angle spacing (rad)
-0.006283185307
+0.006
 
 detector channel angle spacing (rad)
-0.00095237959
+0.00495237959
 
 detector channel offset (rad)
 0.001666664282500

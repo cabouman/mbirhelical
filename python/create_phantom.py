@@ -35,13 +35,13 @@ def create_cone(r, N):
         mask = dist_from_center <= radius
         img[mask, j] = 1.0
 
-    img[0,0,0:10] = 1.0
+    img[0:3,0:3,0:10] = 1.0
 
     xc = N / 2
     yc = N / 2
-    zc = N / 2
-    Del_xy = 1.0
-    Del_z = 1.0
+    zc = 0
+    Del_xy = 0.4
+    Del_z = 0.4
 
     res = [Del_xy, Del_xy, Del_z]
     loc = [xc, yc, zc]
@@ -101,4 +101,11 @@ if __name__ == '__main__':
 
     hio.write_image_info(fname, img_info, base_name)
     hio.write_image(base_name, img_info, image)
-    a = 0
+
+    # Set up angle list
+    num_angles = 1000
+    angle_start = 0
+    angle_step = 0.05  # 0.006283185307 # from Xiao's example
+    angle_list = angle_start + angle_step * np.arange(num_angles)
+    angle_fname = "viewAnglesList.txt"
+    hio.write_angle_list(angle_fname, angle_list)

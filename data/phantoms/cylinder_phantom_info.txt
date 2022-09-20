@@ -17,13 +17,13 @@ y coordinate of the center voxel (mm)
 50.000000
 
 z coordinate of the center voxel (mm)
-50.000000
+0.000000
 
 voxel spacing in xy (mm)
-1.000000
+0.400000
 
 voxel spacing in z (mm)
-1.000000
+0.400000
 
 radius of the reconstruction mask (mm)
 50.000000

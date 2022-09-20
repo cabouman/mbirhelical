@@ -94,8 +94,22 @@ def write_image(filename, img_info, image):
         fp.write(image.astype(np.float32).tobytes())
 
     with open(filename+'.raw', 'w+b') as fp:
-        fp.write(image.astype(np.float32).tobytes())
+        fp.write(image.transpose().astype(np.float32).tobytes())
 
+
+def write_angle_list(filename, angle_list):
+    """
+    Save an angle list to a text file, one per line:
+    Args:
+        filename: file name for angle list
+        angle_list: a 1D numpy array containing the angles
+
+    Returns:
+        None
+    """
+    with open(filename, 'w') as fp:
+        for angle in angle_list:
+            print("%f" % angle, file=fp)
 
 # def numpy_array_as_vtk_image_data(source_numpy_array):
 #     """

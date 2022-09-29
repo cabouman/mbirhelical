@@ -26,10 +26,10 @@ voxel spacing in z (mm)
 0.400000
 
 radius of the reconstruction mask (mm)
-50.000000
+20.000000
 
 initial reconstruction image location
-cylinder_phantom.mhimage
+NA
 
 mask file location
 NA

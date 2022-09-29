@@ -47,10 +47,10 @@ electronic noise variance (0 for noiseless)
 0
 
 sinogram file location
-cylinder_proj.raw
+cylinder_proj.sino
 
 weight file location
-cylinder_weight.wght
+cylinder_proj.sino.wght
 
 dosage file location
 NA

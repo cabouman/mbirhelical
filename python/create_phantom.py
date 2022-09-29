@@ -102,10 +102,18 @@ if __name__ == '__main__':
     hio.write_image_info(fname, img_info, base_name)
     hio.write_image(base_name, img_info, image)
 
-    # Set up angle list
+    # Set up angle list and z position list
     num_angles = 1000
     angle_start = 0
     angle_step = 0.05  # 0.006283185307 # from Xiao's example
     angle_list = angle_start + angle_step * np.arange(num_angles)
     angle_fname = "viewAnglesList.txt"
-    hio.write_angle_list(angle_fname, angle_list)
+    hio.write_array_to_text(angle_fname, angle_list)
+
+    z_start = 0
+    z_step = 0.02
+    z_list = z_start + z_step * np.arange(num_angles)
+    z_fname = "zPositionList.txt"
+    hio.write_array_to_text(z_fname, z_list)
+
+

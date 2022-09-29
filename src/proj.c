@@ -10,12 +10,19 @@
 #include "mpi.h"
 #include <string.h>
 
-void createSinogram(struct Sinogram *sinogram)
+
+void initializeSinogram(struct Sinogram *sinogram)
 {
     sinogram->counts = NULL;
     sinogram->dose = NULL;
     sinogram->offset = NULL;
     sinogram->D = NULL;
+	sinogram->sino = NULL;
+}
+
+void createSinogram(struct Sinogram *sinogram)
+{
+    initializeSinogram(sinogram);
 	sinogram->sino = (ENTRY *)get_spc((sinogram->geom_info.Nr)*(sinogram->geom_info.Nc)*(sinogram->geom_info.Nv), sizeof(ENTRY));
 }
 

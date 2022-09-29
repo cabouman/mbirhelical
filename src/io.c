@@ -525,9 +525,9 @@ void writeSinogram_float(char *fname, ENTRY *Y, int Nr, int Nc, int Nv)
                 exit(1);
         }
         size_t lenstr = strlen(fname);
-        char* suffix = ".sino";
+        char* suffix = ".raw";
         size_t lensuffix = strlen(suffix);
-        if (strcmp(fname + lenstr - lensuffix, suffix) == 0)
+        if (strcmp(fname + lenstr - lensuffix, suffix) != 0)
             fprintf(fp, "%d %d %d\n", Nr, Nc, Nv);
         length=Nr*Nc*Nv;
 

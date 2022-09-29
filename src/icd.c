@@ -1373,8 +1373,10 @@ void ICDReconstruct(
  	 readSinogram_float(errorFname, e, sinogram->geom_info.Nr * sinogram->geom_info.Nc* sinogram->geom_info.Nv);
 */	
 
-	free((void *) Y);
+	/*
+    free((void *) Y);
 	Y=NULL;
+    */
 
 
 	printf("done projecting\n");

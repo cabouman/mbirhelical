@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	}
 
 
-
+    initializeSinogram(sinogram);
 	sinogram.geom_info.num_focal_spots = atoi(argv[2]);
 	sinogram.geom_info.num_sources = atoi(argv[10]);
 	

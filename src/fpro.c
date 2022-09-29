@@ -10,6 +10,8 @@
 #include "prepro.h"
 #include "allocate.h"
 #include "mpi.h"
+#include "math.h"
+#include <string.h>
 
 void error(char *name)
 {
@@ -92,6 +94,17 @@ int main(int argc, char *argv[])
 	/* write sinogram */
 	/*writeSinogram(sinogram.geom_info.sinoFile, &sinogram);*/
     writeSinogram_float(sinogram.geom_info.sinoFile, e,
+                     sinogram.geom_info.Nr, sinogram.geom_info.Nc, sinogram.geom_info.Nv);
+
+    /* write weight file */
+    for (int i=0; i<sinogram.geom_info.Nr * sinogram.geom_info.Nc * sinogram.geom_info.Nv; i++) {
+        e[i] = (ENTRY) exp(-e[i]);
+    }
+    char weight_fname[500], extension[10];
+    strcpy(weight_fname, sinogram.geom_info.sinoFile);
+    strcpy(extension, ".wght");
+    strcat(weight_fname, extension);
+    writeSinogram_float(weight_fname, e,
                      sinogram.geom_info.Nr, sinogram.geom_info.Nc, sinogram.geom_info.Nv);
 
 	/* record running time */

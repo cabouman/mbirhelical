@@ -27,7 +27,7 @@ def create_image_info(image, res, loc):
     image_info['zc'] = loc[2]
     image_info['Del_xy'] = res[0]
     image_info['Del_z'] = res[2]
-    image_info['rI'] = np.amin(image.shape) // 2
+    image_info['rI'] = res[0] * np.amin(image.shape).astype(float) / 2
     image_info['imgFile'] = 'NA'
     image_info['maskFile'] = 'NA'
 
@@ -67,6 +67,7 @@ def write_image_info(filename, img_info, image_file_name):
         print("radius of the reconstruction mask (mm)", file=fp)
         print("%f\n" % img_info['rI'], file=fp)
         print("initial reconstruction image location", file=fp)
+        # TODO:  for projection, the next line should be the phantom image.  For recon, it should be 'NA'
         print("%s\n" % img_info['imgFile'], file=fp)
         print("mask file location", file=fp)
         print("%s\n" % img_info['maskFile'], file=fp)
@@ -93,23 +94,24 @@ def write_image(filename, img_info, image):
         fp.write(image_dims.astype(np.int32).tobytes())
         fp.write(image.astype(np.float32).tobytes())
 
-    with open(filename+'.raw', 'w+b') as fp:
+    dims = '_' + str(image_dims)
+    with open(filename + dims + '.raw', 'w+b') as fp:
         fp.write(image.transpose().astype(np.float32).tobytes())
 
 
-def write_angle_list(filename, angle_list):
+def write_array_to_text(filename, values):
     """
-    Save an angle list to a text file, one per line:
+    Save a 1D array to a text file, one per line:
     Args:
         filename: file name for angle list
-        angle_list: a 1D numpy array containing the angles
+        values: a 1D numpy array containing the values to write
 
     Returns:
         None
     """
     with open(filename, 'w') as fp:
-        for angle in angle_list:
-            print("%f" % angle, file=fp)
+        for value in values:
+            print("%f" % value, file=fp)
 
 # def numpy_array_as_vtk_image_data(source_numpy_array):
 #     """
